@@ -1,0 +1,9 @@
+.git
+.env
+dist
+dist.tmp
+docs
+templates
+*.docx
+*.xlsx
+**/__pycache__

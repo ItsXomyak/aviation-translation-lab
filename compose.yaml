@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    image: aviation-translation-lab
+    restart: unless-stopped
+    environment:
+      # e.g. 203.0.113.10.sslip.io (see .env.example)
+      SITE_ADDRESS: ${SITE_ADDRESS:?Set SITE_ADDRESS in .env, e.g. 203.0.113.10.sslip.io}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data      # certificates survive container rebuilds
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

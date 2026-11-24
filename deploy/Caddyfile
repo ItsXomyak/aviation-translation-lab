@@ -1,0 +1,17 @@
+# SITE_ADDRESS examples:
+#   203.0.113.10.sslip.io  → HTTPS with an automatic Let's Encrypt certificate (ports 80 and 443 must be reachable)
+#   :8080                  → plain HTTP on port 8080 (local test, or behind another reverse proxy)
+{$SITE_ADDRESS:localhost} {
+	root * /srv
+	encode zstd gzip
+	file_server
+
+	header {
+		# data.js changes on every corpus update: always revalidate (ETag keeps it cheap)
+		Cache-Control "no-cache"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# chart bars use inline style attributes; all scripts are local files
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+	}
+}

@@ -29,17 +29,26 @@ the demo mode is marked by a gold banner and `DEMO_` file names.
 4. Run `python3 tools/build.py`. Errors are listed as `table.csv:line: problem`; nothing is built until all are fixed.
 5. Commit, push, and publish on the server (below).
 
-## Publish on the server
+## Deploy with Docker
 
-Server layout: `/opt/atl/repo` (git clone), `/opt/atl/releases/<timestamp>`, `/opt/atl/current` → active release.
-The web server serves `/opt/atl/current`.
+The image validates the corpus while it is built (`tools/build.py`) and serves the site with Caddy, which obtains a
+Let's Encrypt certificate for the address in `SITE_ADDRESS` automatically. Ports 80 and 443 must be free and reachable.
 
 ```bash
-ssh <server> /opt/atl/repo/tools/publish.sh
+git clone <repository-url> aviation-translation-lab && cd aviation-translation-lab
+cp .env.example .env            # set SITE_ADDRESS=<server-ip>.sslip.io
+docker compose up -d --build
 ```
 
-`publish.sh` pulls, validates, builds a new release and switches `current` atomically. If validation fails, the
-command prints the errors and the live site keeps the previous release.
+Update after a corpus change:
+
+```bash
+git pull && docker compose up -d --build
+```
+
+If the CSV tables contain an error, the image build stops with the `table.csv:line: problem` list and the running
+container keeps serving the previous version. Behind an existing reverse proxy, set `SITE_ADDRESS=:8080`, publish
+`8080` instead of 80/443 in `compose.yaml`, and proxy the domain to it.
 
 ## Tests
 
@@ -56,7 +65,7 @@ python3 tools/test_build.py && python3 tools/test_data.py && node --test tools/l
 | `web/` | Interface: `index.html`, `app.css`, `app.js` (shell), `lib.js` (logic), `views/` (one file per module) |
 | `tools/build.py` | Validation and build |
 | `tools/import_xlsx.py` | Import of the author's Excel workbook into `data/` |
-| `tools/publish.sh` | Server publishing |
+| `Dockerfile`, `compose.yaml`, `deploy/Caddyfile` | Container build and HTTPS serving |
 | `docs/` | This guide, data dictionary, acceptance results, design spec and plan |
 
 ## Why a static site instead of Streamlit

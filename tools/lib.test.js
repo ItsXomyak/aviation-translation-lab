@@ -182,8 +182,9 @@ test('language of free text: Russian, Kazakh or neither', () => {
   assert.equal(L.langOf(''), '');
 });
 
-test('unit title falls back to topic and genre', () => {
+test('unit title falls back to subtopic (or topic) and genre', () => {
   assert.equal(L.unitTitle(DATA, DATA.units[0]), 'Aerodrome · ATC radiotelephony');
+  assert.equal(L.unitTitle(DATA, { ...DATA.units[0], subtopic: 'take-off' }), 'Take-off · ATC radiotelephony');
   assert.equal(L.unitTitle(DATA, { ...DATA.units[0], title: 'Landing' }), 'Landing');
 });
 
@@ -197,7 +198,8 @@ test('CSV escapes commas, quotes and newlines', () => {
   assert.equal(L.toCSV([{ a: 'x,y', b: 'say "hi"\nnow' }], ['a', 'b']), 'a,b\r\n"x,y","say ""hi""\nnow"\r\n');
 });
 
-// The author's workbook (sheet "Stats", dataset = research) is the reference for the real corpus.
+// The author's workbook v0.2 (sheet "Stats", dataset = research) is the reference; it counts 21 sources,
+// the dashboard 19 documents (S19 and S20 are the author's own texts).
 test('dashboard reproduces the author statistics for the research corpus', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'atl-'));
   execFileSync('python3', [path.join(__dirname, 'build.py'), '--out', path.join(out, 'dist')]);
@@ -210,5 +212,5 @@ test('dashboard reproduces the author statistics for the research corpus', () =>
   assert.deepEqual(counts(s.difficulties), { D01: 10, D02: 5, D03: 5, D04: 7, D05: 8, D06: 10 });
   assert.deepEqual(counts(s.strategies), { ST01: 13, ST02: 2, ST03: 4, ST04: 4, ST05: 6, ST07: 2, ST08: 7 });
   assert.equal(L.percent(s.difficulties.find(d => d.id === 'D01').share), '45.5%');
-  assert.deepEqual([s.totalDocuments, s.totalTerms], [18, 54]);
+  assert.deepEqual([s.totalDocuments, s.totalTerms], [19, 54]);
 });

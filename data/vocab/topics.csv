@@ -1,22 +1,12 @@
 id,label
-aerodrome,Aerodrome
-ats,ATS
-radiotelephony,Radiotelephony
-flight_operations,Flight operations
-emergency,Emergency
-navigation,Navigation
-ais_meteo,AIS/meteo
-aircraft_crew,Aircraft/crew
-safety,Safety
-cabin,Cabin
-language_policy,Language policy
-take_off,Take-off
-conditional_clearance,Conditional clearance
-taxi,Taxi
-go_around,Go-around
-transponder,Transponder
-level_change,Level change
-readback,Readback
-departure,Departure
-ais,AIS
-meteo,Meteo
+TP01,Aerodrome & runway operations
+TP02,Air traffic services & clearances
+TP03,Radiotelephony procedure words
+TP04,"Navigation, surveillance & altimetry"
+TP05,Approach & landing
+TP06,Emergency & urgency
+TP07,Aeronautical information & meteorology
+TP08,Aircraft & crew
+TP09,"Safety, security & investigation"
+TP10,Cabin & passenger service
+TP11,Language policy & phraseology standards

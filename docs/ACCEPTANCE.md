@@ -1,6 +1,6 @@
 # Acceptance results
 
-Checked on 2026-11-24 against ТЗ v1.0, section 7. Published at https://93.171.232.191.sslip.io. Corpus version `0.1-draft` (imported from the author's workbook),
+Checked on 2026-11-24 against ТЗ v1.0, section 7. Published at https://93.171.232.191.sslip.io. Corpus version `0.2-draft` (imported from the author's `Aviation_Corpus_v0.2.zip`),
 Chrome on macOS, local server `python3 -m http.server -d dist 8765` unless noted otherwise.
 
 ## Automated tests
@@ -13,7 +13,7 @@ node --test tools/lib.test.js → tests 19, pass 19, fail 0
 
 `tools/lib.test.js` also builds the real corpus and checks that the Dashboard reproduces the author's statistics sheet
 (dataset = research): N = 22 annotated units; D01 10, D02 5, D03 5, D04 7, D05 8, D06 10;
-ST01 13, ST02 2, ST03 4, ST04 4, ST05 6, ST07 2, ST08 7; 45.5% for D01; 18 source documents (20 sources minus the
+ST01 13, ST02 2, ST03 4, ST04 4, ST05 6, ST07 2, ST08 7; 45.5% for D01; 19 source documents (21 sources minus the
 author's own translation S19 and training text S20) and 54 terms in the corpus.
 
 ## ТЗ 7.1
@@ -82,7 +82,7 @@ Findings from `Аудит_платформы_Aviation_Translation_Lab.pdf`; all 
 |---|---|---|
 | 1 | Link type set per unit, not per language pair | Fixed: `link_type_en/ru/kk`; KK of U001–U018 is *Illustrative translation*, RU of U015–U018 *Confirmed* |
 | 2 | Source documents counter inflated | Fixed: `is_document`; 11 in the full selection, 18 in the corpus |
-| 3 | Two topic systems mixed | Waiting for corpus v0.2 (`ref_topics`) |
+| 3 | Two topic systems mixed | Fixed with corpus v0.2: one list TP01–TP11 for terms and units; the narrow theme is `subtopic` |
 | 4 | Illustrative translations could be scored | Fixed: scores only for confirmed pairs and training examples |
 | 5 | Pending selections not dashed | Fixed, with a legend |
 | 6 | Highlights broke into blocks at 375 px | Fixed: inline `<mark role="button">`, wraps with the sentence |
@@ -91,14 +91,14 @@ Findings from `Аудит_платформы_Aviation_Translation_Lab.pdf`; all 
 | 9 | Term card scrolled out of view | Fixed: sticky card on wide screens |
 | 10 | Unknown IDs and routes opened silently | Fixed: *… not found* and *Page not found* |
 | 11 | 12-column table cut at 1440 px | Fixed: source IDs with full reference on hover; fits at 1440 px; scroll hint when it overflows |
-| 12 | Lower-case topic names | Fixed: capitalised on import |
+| 12 | Lower-case topic names | Fixed: the 11 topics of `ref_topics` (EN labels) in the filters and the *Terms by topic* chart |
 | 13 | No overall comment in score mode | Fixed |
 | 14 | Justification optional | Fixed: required for criteria scored 0 or 1 |
 | 15 | No author, supervisor, university on the home page | Fixed for author and supervisor; university waits for the author |
 | 16 | "Research Prototype" twice | Fixed: hero reads *Master's dissertation · 2026* |
 | 17 | Russian text without `lang` | Fixed: explanations, notes, titles, locators tagged `ru`/`kk` |
 | 18 | Skip link unreachable | Fixed: focus moves only on navigation |
-| 19 | Site on corpus v0.1 | Waiting for corpus v0.2 |
+| 19 | Site on corpus v0.1 | Fixed: corpus 0.2-draft (S21 for the Russian fragment of U018) |
 | 20 | sslip.io address may be blocked | Kept for now (decision of the developer); `dist/` works offline |
 | 21 | Stack deviation from ТЗ 6.3 not described | Fixed: *Implementation* section in Methodology |
 | 22 | Import check and rollback not shown | Fixed: see *Rejected corpus file* above |

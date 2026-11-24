@@ -17,15 +17,15 @@ open dist/index.html        # or double-click the file; no network or server nee
 
 Alternative with a local server: `python3 -m http.server -d dist 8000`, then open http://localhost:8000.
 
-The site opens in **Research corpus** mode: 22 research units, 54 terms and 20 sources of corpus version 0.1-draft.
+The site opens in **Research corpus** mode: 22 research units, 54 terms and 21 sources of corpus version 0.2-draft.
 **Demo** in the header adds the four modelled demo units (METAR, ATIS, cabin announcement, manual instruction);
 the demo mode is marked by a gold banner and `DEMO_` file names.
 
 ## Update the corpus
 
 1. Edit the CSV files in `data/` (UTF-8; Excel "CSV UTF-8" is fine). Field reference: `docs/DATA_DICTIONARY.md`.
-   Empty templates: `templates/`. If you keep working in the Excel workbook instead, re-import it:
-   `pip install openpyxl && python3 tools/import_xlsx.py Aviation_Corpus_EN_RU_KK.xlsx`.
+   Empty templates: `templates/`. A new corpus version from the author (the `data/` folder of the archive) is imported with
+   `python3 tools/import_corpus.py path/to/data`.
 2. `dataset=research` records form the research corpus; `demo` records appear only in Demo mode; `draft` records are
    never published. After checking a form or annotation against the official source, set its `check_status` to `verified`.
 3. Add a row to `data/versions.csv` describing the change.
@@ -76,7 +76,7 @@ python3 tools/test_build.py && python3 tools/test_data.py && node --test tools/l
 | `templates/` | Header-only CSV templates |
 | `web/` | Interface: `index.html`, `app.css`, `app.js` (shell), `lib.js` (logic), `views/` (one file per module) |
 | `tools/build.py` | Validation and build |
-| `tools/import_xlsx.py` | Import of the author's Excel workbook into `data/` |
+| `tools/import_corpus.py` | Import of the author's corpus tables (`data/` of the archive) into `data/` |
 | `Dockerfile`, `compose.yaml`, `deploy/Caddyfile` | Container build and HTTPS serving |
 | `docs/` | This guide, data dictionary, acceptance results, design spec and plan |
 

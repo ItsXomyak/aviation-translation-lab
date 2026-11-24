@@ -22,7 +22,7 @@
     main.innerHTML = `<h1>Research Dashboard</h1>
       <form class="filters" id="dash-form">
         <div><label for="genre">Genre</label><select id="genre" name="genre">${options(usedVocab(d.vocab.genres, d.units, 'genre_id'), state.genre)}</select></div>
-        <div><label for="topic">Topic</label><select id="topic" name="topic">${options(usedVocab(d.vocab.topics, d.units, 'topic_id'), state.topic)}</select></div>
+        <div><label for="topic">Topic</label><select id="topic" name="topic">${options(d.vocab.topics, state.topic)}</select></div>
         <div><label for="pair">Language pair</label><select id="pair" name="pair">${options(PAIR_LABELS, state.pair)}</select></div>
         <div><label for="link">Link type</label><select id="link" name="link">${options(Lib.LINK_LABELS, state.link)}</select></div>
         <div class="form-actions"><button type="reset" class="secondary">Reset filters</button></div>

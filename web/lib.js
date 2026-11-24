@@ -64,7 +64,8 @@
     return { ...data, mode, terms, units, empty: !terms.length && !units.length };
   }
   const datasetName = ds => (ds.mode === 'demo' ? 'demo' : 'research');
-  const unitTitle = (ds, u) => u.title || capitalize(`${ds.vocab.topics[u.topic_id]} · ${ds.vocab.genres[u.genre_id]}`);
+  const unitTitle = (ds, u) =>
+    u.title || capitalize(`${u.subtopic || ds.vocab.topics[u.topic_id]} · ${ds.vocab.genres[u.genre_id]}`);
 
   // Kazakh letters fold to their Russian-keyboard look-alikes, so "ушу-кону" finds "ұшу-қону".
   const FOLD = { ә: 'а', ғ: 'г', қ: 'к', ң: 'н', ө: 'о', ұ: 'у', ү: 'у', һ: 'х', і: 'и', ё: 'е' };

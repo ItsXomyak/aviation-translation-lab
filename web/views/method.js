@@ -21,7 +21,7 @@ App.views.method = (main, d) => {
         CSV tables that the author edits.</p>
       <p><code>tools/build.py</code> validates every table (IDs, references, vocabularies, selection boundaries,
         link types by language) and writes the site. On any error it prints <code>table.csv:line: problem</code> and leaves
-        the previous build untouched. The author's Excel workbook is converted with <code>tools/import_xlsx.py</code>.</p>
+        the previous build untouched. The author's corpus tables are converted with <code>tools/import_corpus.py</code>.</p>
       <p>Source code, tests and the update procedure:
         <a href="https://github.com/ItsXomyak/aviation-translation-lab" target="_blank" rel="noopener">github.com/ItsXomyak/aviation-translation-lab</a>.</p>
     </div>

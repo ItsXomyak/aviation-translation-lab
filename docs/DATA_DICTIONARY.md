@@ -4,9 +4,9 @@ All tables are CSV, UTF-8, first row = column names. Lists inside a cell are sep
 Dates use `YYYY-MM-DD`. Required columns are marked **bold**; optional columns may be left empty or omitted.
 Run `python3 tools/build.py` after every change.
 
-The current tables (corpus version 0.1-draft) were imported from the author's workbook
-`Aviation_Corpus_EN_RU_KK.xlsx` with `python3 tools/import_xlsx.py Aviation_Corpus_EN_RU_KK.xlsx`
-(needs `pip install openpyxl`). Re-running the import overwrites the CSV tables, not `methodology.html`.
+The current tables (corpus version 0.2-draft) were imported from the `data/` folder of the author's archive
+`Aviation_Corpus_v0.2.zip` with `python3 tools/import_corpus.py path/to/data`. Re-running the import overwrites the
+CSV tables, not `methodology.html`.
 
 ## Fixed values
 
@@ -35,7 +35,7 @@ IDs are permanent (other tables refer to them); labels may be edited. The interf
 |---|---|
 | `difficulties.csv` | **id** (`D01`…), code, **label**, label_ru, label_kk, description |
 | `strategies.csv` | **id** (`ST01`…), code, **label**, label_ru, label_kk |
-| `topics.csv` | **id**, **label** — topics of terms and units |
+| `topics.csv` | **id** (`TP01`…`TP11`), **label** — one topic list for terms and units (author's `ref_topics.csv`) |
 | `genres.csv` | **id**, **label** — genres of units (used by the Dashboard genre filter) |
 
 ## `sources.csv`
@@ -63,8 +63,8 @@ A language without a form is shown as *Not available*.
 
 ## `units.csv` and `fragments.csv`
 
-`units.csv`: **unit_id**, title (if empty the interface shows "topic · genre"), **genre_id**, **topic_id**,
-term_ids (`;` list), link_type_en, link_type_ru, link_type_kk, source_lang (language of the original according to
+`units.csv`: **unit_id**, title (if empty the interface shows "subtopic · genre"), **genre_id**, **topic_id**,
+subtopic (narrow theme such as *take-off*; shown in the title, not a filter), term_ids (`;` list), link_type_en, link_type_ru, link_type_kk, source_lang (language of the original according to
 the source), direction_basis, **alignment_status**, training, **dataset**, note.
 
 - The link type belongs to each language, not to the unit: it says how that language's text relates to the original.
@@ -77,8 +77,6 @@ the source), direction_basis, **alignment_status**, training, **dataset**, note.
 - Rubric scoring (ТЗ 4.4) is available for a language pair whose target is a `confirmed_translation`, and for units with
   `training=yes` (training examples; they require `source_lang` as the reference text). Other pairs take a comparison
   comment. U003 is marked as a training example because the corpus description uses it as the rubric example.
-- Corpus v0.1 has one link type per unit; `tools/import_xlsx.py` turns it into per-language types (a fragment from
-  the author's own source becomes `illustrative_translation`). A workbook with `link_type_en/ru/kk` columns is used as is.
 - A `research` unit may link only to `research` terms.
 
 `fragments.csv`: **unit_id**, **lang**, **seq** (sentence number 1, 2, … within the unit and language), **text**,
@@ -105,7 +103,7 @@ The Dashboard counts annotated units of the visible dataset (Research: `research
 after the filters. Frequency = number of units with at least one annotation carrying the label; share = frequency / N
 annotated units, one decimal place. All annotations count regardless of their check status, as in the author's
 statistics sheet; the status is shown as a label. The *Link type* filter applies to each annotation's language pair.
-*Source documents* counts sources with `is_document = yes` only. For version 0.1-draft the research corpus gives N = 22, e.g.
+*Source documents* counts sources with `is_document = yes` only. For version 0.2-draft the research corpus gives N = 22, e.g.
 Terminological equivalence 10 of 22 = 45.5% (checked by `tools/lib.test.js`).
 
 ## What the build checks

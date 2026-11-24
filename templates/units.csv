@@ -1,1 +1,1 @@
-unit_id,title,genre_id,topic_id,term_ids,link_type_en,link_type_ru,link_type_kk,source_lang,direction_basis,alignment_status,training,dataset,note
+unit_id,title,genre_id,topic_id,subtopic,term_ids,link_type_en,link_type_ru,link_type_kk,source_lang,direction_basis,alignment_status,training,dataset,note

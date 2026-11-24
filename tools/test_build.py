@@ -28,7 +28,7 @@ FIXTURE = {
                "dataset": "research"}],
     "term_forms": [{"term_id": "T1", "lang": "kk", "form": "ұшу-қону жолағы", "source_id": "S1",
                     "check_status": "pending_validation"}],
-    "units": [{"unit_id": "U1", "genre_id": "atc", "topic_id": "aerodrome", "term_ids": "T1",
+    "units": [{"unit_id": "U1", "genre_id": "atc", "topic_id": "aerodrome", "subtopic": "taxi", "term_ids": "T1",
                "link_type_ru": "confirmed_translation", "source_lang": "en", "direction_basis": "Stated in source",
                "alignment_status": "aligned", "dataset": "research"}],
     "fragments": [
@@ -87,6 +87,7 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(unit["term_ids"], ["T1"])
         self.assertIs(unit["training"], False)
         self.assertEqual(unit["link_types"], {"en": "", "ru": "confirmed_translation", "kk": ""})
+        self.assertEqual(unit["subtopic"], "taxi")
         self.assertNotIn("link_type_ru", unit)
         self.assertEqual([s["is_document"] for s in data["sources"].values()], [True, False])
         self.assertEqual([f["seq"] for f in unit["fragments"]], [1, 1])

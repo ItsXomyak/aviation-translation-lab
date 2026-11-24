@@ -1,4 +1,4 @@
-"""Checks the shipped corpus (imported from Aviation_Corpus_EN_RU_KK.xlsx) and the templates.
+"""Checks the shipped corpus (imported from the data/ folder of Aviation_Corpus_v0.2.zip) and the templates.
 
 Run: python3 tools/test_data.py -v
 """
@@ -30,7 +30,7 @@ class RepoDataTest(unittest.TestCase):
     def test_corpus_size_matches_workbook(self):
         d = self.data
         anns = sum(len(u["annotations"]) for u in d["units"])
-        self.assertEqual((len(d["sources"]), len(d["terms"]), len(d["units"]), anns), (20, 54, 26, 44))
+        self.assertEqual((len(d["sources"]), len(d["terms"]), len(d["units"]), anns), (21, 54, 26, 44))
         self.assertEqual(Counter(u["dataset"] for u in d["units"]), {"research": 22, "demo": 4})
 
     def test_demo_terms_from_the_tz(self):

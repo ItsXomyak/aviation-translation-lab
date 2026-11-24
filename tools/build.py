@@ -38,7 +38,7 @@ SCHEMA = {
               "term_id topic_id definition dataset"),
     "term_forms": ("term_id lang form abbreviation source_id locator check_status",
                    "term_id lang form source_id check_status"),
-    "units": ("unit_id title genre_id topic_id term_ids link_type_en link_type_ru link_type_kk source_lang "
+    "units": ("unit_id title genre_id topic_id subtopic term_ids link_type_en link_type_ru link_type_kk source_lang "
               "direction_basis alignment_status training dataset note",
               "unit_id genre_id topic_id alignment_status dataset"),
     "fragments": ("unit_id lang seq text source_id locator", "unit_id lang seq text source_id"),

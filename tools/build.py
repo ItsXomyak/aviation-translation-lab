@@ -21,7 +21,9 @@ LINK_TYPES = ("confirmed_translation", "parallel_unknown_direction", "comparable
 ALIGNMENT = ("aligned", "in_review")
 DATASETS = ("research", "demo", "draft")
 CHECKS = ("verified", "source_referenced", "pending_validation", "illustrative")
-TRAINING = ("yes", "no")
+YES_NO = ("yes", "no")
+# One link type per language: how that language's text relates to the original (source_lang).
+LINK_COLS = {lang: f"link_type_{lang}" for lang in LANGS}
 
 # table: (all columns, required columns)
 SCHEMA = {
@@ -29,16 +31,16 @@ SCHEMA = {
     "vocab/difficulties": ("id code label label_ru label_kk description", "id label"),
     "vocab/strategies": ("id code label label_ru label_kk", "id label"),
     "vocab/genres": ("id label", "id label"),
-    "sources": ("source_id title organization lang genre audience url accessed edition note",
+    "sources": ("source_id title organization lang genre audience url accessed edition note is_document",
                 "source_id title organization lang genre accessed"),
     "terms": ("term_id topic_id definition definition_lang definition_source_id context difficulty_ids "
               "difficulty_note dataset",
               "term_id topic_id definition dataset"),
     "term_forms": ("term_id lang form abbreviation source_id locator check_status",
                    "term_id lang form source_id check_status"),
-    "units": ("unit_id title genre_id topic_id term_ids link_type source_lang direction_basis alignment_status "
-              "training dataset note",
-              "unit_id genre_id topic_id link_type alignment_status dataset"),
+    "units": ("unit_id title genre_id topic_id term_ids link_type_en link_type_ru link_type_kk source_lang "
+              "direction_basis alignment_status training dataset note",
+              "unit_id genre_id topic_id alignment_status dataset"),
     "fragments": ("unit_id lang seq text source_id locator", "unit_id lang seq text source_id"),
     "annotations": ("annotation_id unit_id lang seq span_text occurrence compared_with difficulty_ids strategy_ids "
                     "explanation evidence_source_id evidence_locator check_status",
@@ -147,6 +149,7 @@ def validate(t, err):
     for r in t["sources"]:
         allowed(err, "sources", r, "lang", LANGS, sep="/")  # a bilingual document is written "ru/kk"
         iso_date(err, "sources", r, "accessed")
+        allowed(err, "sources", r, "is_document", YES_NO)  # "no" = made by the author (translation, training text)
 
     terms = unique(err, "terms", t["terms"], lambda r: r["term_id"])
     for r in t["terms"]:
@@ -165,14 +168,15 @@ def validate(t, err):
 
     units = unique(err, "units", t["units"], lambda r: r["unit_id"])
     for r in t["units"]:
-        for col, values in (("genre_id", vocab["genres"]), ("topic_id", vocab["topics"]), ("link_type", LINK_TYPES),
-                            ("source_lang", LANGS), ("alignment_status", ALIGNMENT), ("training", TRAINING),
-                            ("dataset", DATASETS)):
+        for col, values in (("genre_id", vocab["genres"]), ("topic_id", vocab["topics"]), ("source_lang", LANGS),
+                            ("alignment_status", ALIGNMENT), ("training", YES_NO), ("dataset", DATASETS),
+                            *((c, LINK_TYPES) for c in LINK_COLS.values())):
             allowed(err, "units", r, col, values)
         refs(err, "units", r, "term_ids", "terms", terms)
-        if r["link_type"] == "confirmed_translation" and not (r["source_lang"] and r["direction_basis"]):
+        types = {r[c] for c in LINK_COLS.values()}
+        if "confirmed_translation" in types and not (r["source_lang"] and r["direction_basis"]):
             err.add("units", r["_line"], "confirmed_translation requires source_lang and direction_basis")
-        if r["link_type"] == "illustrative_translation" and not r["source_lang"]:
+        if "illustrative_translation" in types and not r["source_lang"]:
             err.add("units", r["_line"], "illustrative_translation requires source_lang")
         if r["training"] == "yes" and not r["source_lang"]:
             err.add("units", r["_line"], "training example requires source_lang")
@@ -191,9 +195,24 @@ def validate(t, err):
                    lambda r: f"{r['unit_id']} / {r['lang']} / {r['seq']}")
 
     for r in t["units"]:
-        lang = r["source_lang"]
-        if lang in LANGS and not any(f["unit_id"] == r["unit_id"] and f["lang"] == lang for f in frags.values()):
-            err.add("units", r["_line"], f"no {lang} fragment for source_lang")
+        src = r["source_lang"]
+        have = {f["lang"] for f in frags.values() if f["unit_id"] == r["unit_id"]}
+        if src in LANGS and src not in have:
+            err.add("units", r["_line"], f"no {src} fragment for source_lang")
+        for lang, col in LINK_COLS.items():
+            if lang == src and r[col]:
+                err.add("units", r["_line"], f"{col} must be empty: {lang} is the source language")
+            elif lang != src and lang in have and not r[col]:
+                err.add("units", r["_line"], f"{col} is required: the unit has a {lang} fragment")
+            elif lang not in have and r[col]:
+                err.add("units", r["_line"], f"{col} is set but the unit has no {lang} fragment")
+
+    for f in frags.values():
+        unit = units.get(f["unit_id"])
+        if unit and unit.get(LINK_COLS.get(f["lang"])) == "confirmed_translation":
+            for sid in ids(f["source_id"]):
+                if sid in sources and sources[sid]["is_document"] == "no":
+                    err.add("fragments", f["_line"], f"confirmed_translation cannot cite the author's own source '{sid}'")
 
     unique(err, "annotations", t["annotations"], lambda r: r["annotation_id"])
     taken = {}
@@ -253,7 +272,8 @@ def assemble(t, vocab, methodology):
         uid = r["unit_id"]
         anns = [a for a in t["annotations"] if a["unit_id"] == uid]
         units.append({
-            **clean(r),
+            **clean(r, *LINK_COLS.values()),
+            "link_types": {lang: r[col] for lang, col in LINK_COLS.items()},
             "term_ids": [x for x in ids(r["term_ids"]) if x in published],
             "training": r["training"] == "yes",
             "fragments": sorted((clean(f, "unit_id") for f in t["fragments"] if f["unit_id"] == uid),
@@ -265,7 +285,7 @@ def assemble(t, vocab, methodology):
     return {
         "version": {"current": clean(t["versions"][-1]), "history": [clean(v) for v in t["versions"]]},
         "vocab": vocab,
-        "sources": {r["source_id"]: clean(r) for r in t["sources"]},
+        "sources": {r["source_id"]: {**clean(r), "is_document": r["is_document"] != "no"} for r in t["sources"]},
         "terms": terms,
         "units": units,
         "methodology": methodology,

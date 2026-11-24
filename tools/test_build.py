@@ -21,13 +21,15 @@ FIXTURE = {
     "vocab/strategies": [{"id": "ST03", "label": "Calque"}],
     "vocab/genres": [{"id": "atc", "label": "ATC radiotelephony"}],
     "sources": [{"source_id": "S1", "title": "Title", "organization": "Org", "lang": "ru/kk", "genre": "regulatory",
-                 "audience": "Pilots", "accessed": "2026-11-01"}],
+                 "audience": "Pilots", "accessed": "2026-11-01"},
+                {"source_id": "S2", "title": "Author's translation", "organization": "author", "lang": "kk",
+                 "genre": "illustrative translation", "accessed": "2026-11-01", "is_document": "no"}],
     "terms": [{"term_id": "T1", "topic_id": "aerodrome", "definition": "Definition", "definition_source_id": "S1",
                "dataset": "research"}],
     "term_forms": [{"term_id": "T1", "lang": "kk", "form": "ұшу-қону жолағы", "source_id": "S1",
                     "check_status": "pending_validation"}],
     "units": [{"unit_id": "U1", "genre_id": "atc", "topic_id": "aerodrome", "term_ids": "T1",
-               "link_type": "confirmed_translation", "source_lang": "en", "direction_basis": "Stated in source",
+               "link_type_ru": "confirmed_translation", "source_lang": "en", "direction_basis": "Stated in source",
                "alignment_status": "aligned", "dataset": "research"}],
     "fragments": [
         {"unit_id": "U1", "lang": "en", "seq": "1", "text": "Hold short of runway 06.", "source_id": "S1"},
@@ -84,6 +86,9 @@ class BuildTest(unittest.TestCase):
         unit = data["units"][0]
         self.assertEqual(unit["term_ids"], ["T1"])
         self.assertIs(unit["training"], False)
+        self.assertEqual(unit["link_types"], {"en": "", "ru": "confirmed_translation", "kk": ""})
+        self.assertNotIn("link_type_ru", unit)
+        self.assertEqual([s["is_document"] for s in data["sources"].values()], [True, False])
         self.assertEqual([f["seq"] for f in unit["fragments"]], [1, 1])
         ann = unit["annotations"][0]
         self.assertEqual((ann["start"], ann["end"], ann["label"], ann["seq"]), (0, 8, "A1", 1))
@@ -95,14 +100,14 @@ class BuildTest(unittest.TestCase):
     def test_draft_records_are_not_published(self):
         def add_draft(t):  # drafts are still validated, so the draft gets its own fragment
             t["units"].append({**t["units"][0], "unit_id": "U2", "dataset": "draft"})
-            t["fragments"].append({**t["fragments"][0], "unit_id": "U2"})
+            t["fragments"] += [{**f, "unit_id": "U2"} for f in t["fragments"]]
         self.assertEqual(self.build(add_draft), [])
         self.assertEqual([u["unit_id"] for u in read_data(self.out)["units"]], ["U1"])
 
     def test_new_approved_record_appears_without_ui_changes(self):
         def add(t):
             t["units"].append({**t["units"][0], "unit_id": "U2"})
-            t["fragments"].append({**t["fragments"][0], "unit_id": "U2"})
+            t["fragments"] += [{**f, "unit_id": "U2"} for f in t["fragments"]]
         self.assertEqual(self.build(add), [])
         self.assertEqual([u["unit_id"] for u in read_data(self.out)["units"]], ["U1", "U2"])
 
@@ -132,8 +137,10 @@ class BuildTest(unittest.TestCase):
                          lambda t: t["annotations"][0].update(difficulty_ids="modal"))
 
     def test_unknown_enum_value(self):
-        self.assertError("units.csv:2: unknown link_type value 'translation'",
-                         lambda t: t["units"][0].update(link_type="translation"))
+        self.assertError("units.csv:2: unknown link_type_ru value 'translation'",
+                         lambda t: t["units"][0].update(link_type_ru="translation"))
+        self.assertError("sources.csv:2: unknown is_document value 'maybe'",
+                         lambda t: t["sources"][0].update(is_document="maybe"))
 
     def test_missing_reference(self):
         self.assertError("term_forms.csv:2: term_id 'T9' not found in terms.csv",
@@ -170,11 +177,25 @@ class BuildTest(unittest.TestCase):
 
     def test_training_needs_source_lang(self):
         self.assertError("units.csv:2: training example requires source_lang",
-                         lambda t: t["units"][0].update(link_type="comparable_text", source_lang="", training="yes"))
+                         lambda t: t["units"][0].update(link_type_ru="comparable_text", source_lang="", training="yes"))
 
     def test_illustrative_translation_needs_source_lang(self):
         self.assertError("units.csv:2: illustrative_translation requires source_lang",
-                         lambda t: t["units"][0].update(link_type="illustrative_translation", source_lang=""))
+                         lambda t: t["units"][0].update(link_type_ru="illustrative_translation", source_lang=""))
+
+    def test_source_language_has_no_link_type(self):
+        self.assertError("units.csv:2: link_type_en must be empty: en is the source language",
+                         lambda t: t["units"][0].update(link_type_en="comparable_text"))
+
+    def test_every_target_language_has_a_link_type(self):
+        self.assertError("units.csv:2: link_type_ru is required: the unit has a ru fragment",
+                         lambda t: t["units"][0].update(link_type_ru=""))
+        self.assertError("units.csv:2: link_type_kk is set but the unit has no kk fragment",
+                         lambda t: t["units"][0].update(link_type_kk="comparable_text"))
+
+    def test_confirmed_translation_cannot_cite_author_source(self):
+        self.assertError("fragments.csv:3: confirmed_translation cannot cite the author's own source 'S2'",
+                         lambda t: t["fragments"][1].update(source_id="S2"))
 
     def test_source_lang_needs_fragment(self):
         self.assertError("units.csv:2: no kk fragment for source_lang",

@@ -12,6 +12,10 @@
   };
   // Link types whose translation direction is known: confirmed by a source, or made by the author.
   const DIRECTED = ['confirmed_translation', 'illustrative_translation'];
+  // Each language has its own link type to the original (source_lang); the original itself has none.
+  const linkType = (u, lang) => (u.link_types && u.link_types[lang]) || '';
+  // An annotation compares a target with the original, so its pair takes the target's link type.
+  const annLinkType = (u, a) => linkType(u, a.lang) || linkType(u, a.compared_with);
   const CHECK_LABELS = {
     verified: 'Verified',
     source_referenced: 'Source referenced',
@@ -62,7 +66,18 @@
   const datasetName = ds => (ds.mode === 'demo' ? 'demo' : 'research');
   const unitTitle = (ds, u) => u.title || capitalize(`${ds.vocab.topics[u.topic_id]} · ${ds.vocab.genres[u.genre_id]}`);
 
-  const norm = s => String(s || '').toLowerCase().replace(/ё/g, 'е');
+  // Kazakh letters fold to their Russian-keyboard look-alikes, so "ушу-кону" finds "ұшу-қону".
+  const FOLD = { ә: 'а', ғ: 'г', қ: 'к', ң: 'н', ө: 'о', ұ: 'у', ү: 'у', һ: 'х', і: 'и', ё: 'е' };
+  const norm = s => String(s || '').toLowerCase().replace(/[әғқңөұүһіё]/g, c => FOLD[c]);
+
+  // Language tag for free text (explanations, notes, titles) so screen readers pick the right voice.
+  // ponytail: letter-count heuristic; a text with a few quoted Kazakh words stays "ru".
+  function langOf(text) {
+    const s = String(text || '');
+    const cyr = (s.match(/[а-яёәғқңөұүһі]/gi) || []).length;
+    if (!cyr || cyr * 2 < (s.match(/[a-z]/gi) || []).length) return '';
+    return (s.match(/[әғқңөұүһі]/gi) || []).length / cyr > 0.1 ? 'kk' : 'ru';
+  }
   function searchTerms(terms, { q = '', topic = '', difficulty = '', check = '' } = {}) {
     const needle = norm(q).trim();
     return terms.filter(t =>
@@ -73,10 +88,11 @@
   }
   const headword = t => (t.forms.find(f => f.lang === 'en') || t.forms[0] || { form: t.term_id }).form;
 
-  function direction(unit) {
-    if (!DIRECTED.includes(unit.link_type)) return 'Direction not established';
-    const targets = LANGS.filter(l => l !== unit.source_lang && unit.fragments.some(f => f.lang === l));
-    return LANG_LABELS[unit.source_lang] + ' → ' + targets.map(l => LANG_LABELS[l]).join(', ');
+  function direction(u) {
+    const targets = LANGS.filter(l => DIRECTED.includes(linkType(u, l)));
+    if (targets.length) return { label: LANG_LABELS[u.source_lang] + ' → ' + targets.map(l => LANG_LABELS[l]).join(', '), known: true };
+    if (LANGS.some(l => linkType(u, l) === 'parallel_unknown_direction')) return { label: 'Direction not established', known: false };
+    return { label: 'Not a translation pair (comparable texts)', known: false };
   }
 
   // Split text into plain and highlighted pieces; start/end are UTF-16 offsets computed by the build.
@@ -93,19 +109,25 @@
   }
 
   function filterUnits(ds, f) {
+    const langs = f.pair ? PAIRS[f.pair] : LANGS;
     return ds.units.filter(u =>
       (!f.genre || u.genre_id === f.genre) &&
       (!f.topic || u.topic_id === f.topic) &&
-      (!f.pair || PAIRS[f.pair].every(l => u.fragments.some(fr => fr.lang === l))) &&
-      (!f.link || u.link_type === f.link));
+      (!f.pair || langs.every(l => u.fragments.some(fr => fr.lang === l))) &&
+      (!f.link || langs.some(l => linkType(u, l) === f.link)));
   }
 
   // All annotations of the visible units count; their check status is shown as a label, not used as a filter.
   function countedAnnotations(unit, f) {
     const pair = f.pair && PAIRS[f.pair];
     return unit.annotations.filter(a =>
-      !pair || (pair.includes(a.lang) && (!a.compared_with || pair.includes(a.compared_with))));
+      (!pair || (pair.includes(a.lang) && (!a.compared_with || pair.includes(a.compared_with)))) &&
+      (!f.link || annLinkType(unit, a) === f.link));
   }
+
+  const sourceIds = fr => String(fr.source_id).split(';').map(x => x.trim()).filter(Boolean);
+  // Author-made sources (own translations, training texts) are not documents of the corpus.
+  const isDocument = (ds, id) => Boolean(ds.sources[id]) && ds.sources[id].is_document !== false;
 
   const ref = (id, locator) => id + (locator ? ' (' + locator + ')' : '');
   function tableRow(ds, u, a) {
@@ -114,7 +136,7 @@
       unit_id: u.unit_id, annotation_id: a.annotation_id, lang: LANG_LABELS[a.lang],
       compared_with: LANG_LABELS[a.compared_with] || '', span: a.span_text,
       difficulties: names(a.difficulty_ids, 'difficulties'), strategies: names(a.strategy_ids, 'strategies'),
-      link_type: LINK_LABELS[u.link_type], genre: ds.vocab.genres[u.genre_id], topic: ds.vocab.topics[u.topic_id],
+      link_type: LINK_LABELS[annLinkType(u, a)] || '', genre: ds.vocab.genres[u.genre_id], topic: ds.vocab.topics[u.topic_id],
       sources: [...new Set(u.fragments.map(fr => ref(fr.source_id, fr.locator)))].join('; '),
       check_status: CHECK_LABELS[a.check_status],
     };
@@ -133,8 +155,8 @@
     const terms = ds.terms.filter(t => termIds.has(t.term_id));
     return {
       units: units.length,
-      documents: new Set(units.flatMap(u => u.fragments.map(fr => fr.source_id))).size,
-      totalDocuments: Object.keys(ds.sources).length,
+      documents: new Set(units.flatMap(u => u.fragments.flatMap(sourceIds)).filter(id => isDocument(ds, id))).size,
+      totalDocuments: Object.keys(ds.sources).filter(id => isDocument(ds, id)).length,
       terms: terms.length,
       totalTerms: ds.terms.length,
       annotatedUnits: n,
@@ -151,17 +173,21 @@
   const exportRows = (ds, rows) =>
     rows.map(r => ({ dataset: datasetName(ds), corpus_version: ds.version.current.version, ...r }));
 
-  const isScorable = u => DIRECTED.includes(u.link_type) || u.training === true;
+  // ТЗ 4.4: scores only for confirmed translation pairs and for units marked as training examples.
+  const isScorable = (u, target) => linkType(u, target) === 'confirmed_translation' || u.training === true;
+  // Criteria scored 0 or 1 must say where in the text the problem is (ТЗ 5.1).
+  const missingJustifications = (scores, notes) =>
+    RUBRIC.filter(c => (scores[c.id] === 0 || scores[c.id] === 1) && !String(notes[c.id] || '').trim()).map(c => c.name);
   function rubricTotal(scores) {
     const vals = RUBRIC.map(c => scores[c.id]);
     return vals.every(v => v === 0 || v === 1 || v === 2) ? vals.reduce((a, b) => a + b, 0) : null;
   }
   function assessmentRecord({ ds, unit, target, scores = {}, notes = {}, comment = '', no = '', savedAt = '' }) {
-    const scorable = isScorable(unit);
+    const scorable = isScorable(unit, target);
     const total = scorable ? rubricTotal(scores) : null;
     const rec = {
       dataset: datasetName(ds), assessment_no: no, unit_id: unit.unit_id,
-      language_pair: (unit.source_lang || 'n/a') + '→' + target,
+      language_pair: (LANG_LABELS[unit.source_lang] || 'n/a') + '→' + LANG_LABELS[target],
       corpus_version: ds.version.current.version, rubric_version: RUBRIC_VERSION,
       mode: scorable ? 'score' : 'comment', total: total === null ? '' : total,
       status: !scorable ? 'Comment' : total === null ? 'Incomplete' : 'Complete', comment, saved_at: savedAt,
@@ -185,7 +211,8 @@
   const lib = {
     LANGS, LANG_LABELS, LINK_LABELS, CHECK_LABELS, PAIRS, RUBRIC, RUBRIC_VERSION, TABLE_COLUMNS,
     DASHBOARD_CSV_COLUMNS, ASSESSMENT_CSV_COLUMNS, capitalize, datasetFor, datasetName, unitTitle, searchTerms,
-    headword, direction, segments, stats, percent, exportRows, isScorable, rubricTotal, assessmentRecord, toCSV,
+    headword, linkType, direction, langOf, segments, stats, percent, exportRows, isScorable, missingJustifications,
+    rubricTotal, assessmentRecord, toCSV,
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = lib;
   else root.Lib = lib;

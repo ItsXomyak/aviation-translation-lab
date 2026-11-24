@@ -1,22 +1,22 @@
 id,label
-aerodrome,aerodrome
+aerodrome,Aerodrome
 ats,ATS
-radiotelephony,radiotelephony
-flight_operations,flight operations
-emergency,emergency
-navigation,navigation
+radiotelephony,Radiotelephony
+flight_operations,Flight operations
+emergency,Emergency
+navigation,Navigation
 ais_meteo,AIS/meteo
-aircraft_crew,aircraft/crew
-safety,safety
-cabin,cabin
-language_policy,language policy
-take_off,take-off
-conditional_clearance,conditional clearance
-taxi,taxi
-go_around,go-around
-transponder,transponder
-level_change,level change
-readback,readback
-departure,departure
+aircraft_crew,Aircraft/crew
+safety,Safety
+cabin,Cabin
+language_policy,Language policy
+take_off,Take-off
+conditional_clearance,Conditional clearance
+taxi,Taxi
+go_around,Go-around
+transponder,Transponder
+level_change,Level change
+readback,Readback
+departure,Departure
 ais,AIS
-meteo,meteo
+meteo,Meteo

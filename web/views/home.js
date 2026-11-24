@@ -10,9 +10,10 @@ App.views.home = main => {
     ['method', 'Research and Methodology', 'Aims, alignment and coding procedure, limitations and corpus version.'],
   ];
   main.innerHTML = `<section class="hero">
-      <p class="kicker">Research Prototype</p>
+      <p class="kicker">Master's dissertation · 2026</p>
       <h1>Aviation Translation Lab</h1>
       <p class="lead">An Interactive Platform for the Comparative Analysis of Aviation Discourse Translation</p>
+      <p class="byline">Makhmut Laila Zheniskyzy <span aria-hidden="true">·</span> Supervisor: Akizhanova Diana Muratovna</p>
       <a class="board" href="#/dictionary/T001" aria-describedby="board-caption">
         <span>${langSign('en')}<span lang="en">runway</span></span>
         <span>${langSign('ru')}<span lang="ru">взлётно-посадочная полоса</span></span>

@@ -1,7 +1,7 @@
 // Translation comparison: EN/RU/KK columns, link type and direction, clickable highlighted spans with annotation panel.
 (function () {
   'use strict';
-  const { esc, badge, checkBadge, statusBadge, langSign, sourceRef, setHash } = App;
+  const { esc, txt, badge, checkBadge, statusBadge, langSign, sourceRef, notFound, setHash } = App;
 
   App.views.compare = (main, d, unitId) => {
     main.innerHTML = `<h1>Translation Comparison</h1>
@@ -16,12 +16,20 @@
     const show = id => {
       current = d.units.find(u => u.unit_id === id) || null;
       box.innerHTML = current ? unitHtml(d, current)
+        : id ? notFound('Unit', id, '#/compare', 'Back to Translation Comparison')
         : '<p class="empty">Choose an example above, or open one from a dictionary card.</p>';
     };
 
     main.querySelector('#unit').addEventListener('change', e => {
       setHash('#/compare/' + encodeURIComponent(e.target.value));
       show(e.target.value);
+    });
+    // Highlights are inline <mark role="button"> (so text wraps like text): Enter and Space open them too.
+    box.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('mark[data-ann]')) {
+        e.preventDefault();
+        e.target.click();
+      }
     });
     box.addEventListener('click', e => {
       const btn = e.target.closest('[data-ann]');
@@ -38,7 +46,7 @@
 
   function unitHtml(d, u) {
     const review = u.alignment_status === 'in_review';
-    const directed = Lib.direction(u) !== 'Direction not established';
+    const dir = Lib.direction(u);
     return `<article aria-labelledby="unit-h">
       <div class="strip">
         <div class="strip-id">${esc(u.unit_id)}</div>
@@ -47,13 +55,15 @@
           <p>${badge(review ? 'In review' : 'Aligned', review ? 'review' : 'ok')}${u.training ? badge('Training example', 'training') : ''}${statusBadge(u.dataset)}</p>
         </div>
         <div class="strip-route">
-          <span>${esc(Lib.LINK_LABELS[u.link_type])}</span>
-          <span class="sign-dir${directed ? '' : ' unknown'}">${esc(Lib.direction(u))}</span>
+          <span>Translation direction</span>
+          <span class="sign-dir${dir.known ? '' : ' unknown'}">${esc(dir.label)}</span>
         </div>
       </div>
-      ${u.direction_basis ? `<p class="basis">Basis: ${esc(u.direction_basis)}</p>` : ''}
-      ${u.note ? `<p class="basis">${esc(u.note)}</p>` : ''}
-      <div class="langs">${Lib.LANGS.map(l => column(d, u, l)).join('')}</div>
+      ${u.direction_basis ? `<p class="basis">Basis: ${txt(u.direction_basis)}</p>` : ''}
+      ${u.note ? `<p class="basis">${txt(u.note)}</p>` : ''}
+      <div class="langs">${Lib.LANGS.map(l => column(d, u, l, dir.known)).join('')}</div>
+      ${u.annotations.length ? `<p class="legend"><span class="hl-sample">solid</span> source referenced ·
+        <span class="hl-sample pending">dashed</span> pending validation · select a highlight to read its annotation</p>` : ''}
       <div id="ann-panel" class="panel ann-panel" aria-live="polite" hidden></div>
       <h3>Annotations</h3>
       ${u.annotations.length ? `<ul class="ann-list">${u.annotations.map(a => `<li><button type="button" class="link" data-ann="${esc(a.annotation_id)}">[${esc(a.label)}] ${Lib.LANG_LABELS[a.lang]}: “${esc(a.span_text)}”</button></li>`).join('')}</ul>`
@@ -62,9 +72,12 @@
     </article>`;
   }
 
-  function column(d, u, lang) {
+  // The source-language column is the original when anything was translated from it, otherwise a reference text;
+  // every other column carries its own link type (corpus v0.2: link_type_en/ru/kk).
+  function column(d, u, lang, directed) {
     const frs = u.fragments.filter(f => f.lang === lang);
-    const role = u.source_lang === lang ? badge(u.link_type === 'comparable_text' ? 'Reference' : 'Original', 'orig') : '';
+    const role = u.source_lang === lang ? badge(directed ? 'Original' : 'Reference', 'orig')
+      : Lib.linkType(u, lang) ? badge(Lib.LINK_LABELS[Lib.linkType(u, lang)], 'link') : '';
     const body = frs.length ? frs.map(f => `
         <p class="frag" lang="${lang}">${frs.length > 1 ? `<span class="seq">${f.seq}</span>` : ''}${marked(f, u.annotations.filter(a => a.lang === lang && a.seq === f.seq))}</p>
         <p class="src">Source: ${sourceRef(d, f.source_id, f.locator)}</p>`).join('')
@@ -73,19 +86,9 @@
   }
 
   // Highlight colour is always paired with a text label [A1] (ТЗ: colour duplicated by a text mark).
-  const hlButton = (a, text) => `<button type="button" class="hl${a.check_status === 'pending' ? ' pending' : ''}" data-ann="${esc(a.annotation_id)}" aria-expanded="false" aria-controls="ann-panel">${esc(text)}<sup>[${esc(a.label)}]</sup></button>`;
-  // Buttons are atomic inline boxes, so the browser may wrap right after them; glue the following
-  // punctuation (text up to the next space) to the button so "разрешаю[A1]." never orphans the dot.
-  function marked(f, anns) {
-    const parts = Lib.segments(f.text, anns);
-    return parts.map((s, i) => {
-      if (!s.ann) return esc(s.text);
-      const next = parts[i + 1];
-      const glue = next && !next.ann ? (next.text.match(/^\S+/) || [''])[0] : '';
-      if (glue) next.text = next.text.slice(glue.length);
-      return `<span class="nowrap">${hlButton(s.ann, s.text)}${esc(glue)}</span>`;
-    }).join('');
-  }
+  // An inline <mark> (not a <button>, which is an atomic block) wraps with the sentence and keeps "[A1]." together.
+  const hl = (a, text) => `<mark class="hl${a.check_status === 'pending_validation' ? ' pending' : ''}" role="button" tabindex="0" data-ann="${esc(a.annotation_id)}" aria-expanded="false" aria-controls="ann-panel">${esc(text)}<sup>[${esc(a.label)}]</sup></mark>`;
+  const marked = (f, anns) => Lib.segments(f.text, anns).map(s => (s.ann ? hl(s.ann, s.text) : esc(s.text))).join('');
 
   function annotationHtml(d, a, frag) {
     const names = (list, key, kind) => list.map(id => badge(d.vocab[key][id], kind)).join('') || '<span class="muted">—</span>';
@@ -94,7 +97,7 @@
       <dl>
         <dt>Difficulty type</dt><dd>${names(a.difficulty_ids, 'difficulties', 'diff')}</dd>
         <dt>Strategy</dt><dd>${names(a.strategy_ids, 'strategies', 'strat')}</dd>
-        <dt>Explanation</dt><dd>${esc(a.explanation)}</dd>
+        <dt>Explanation</dt><dd>${txt(a.explanation)}</dd>
         <dt>Fragment source</dt><dd>${sourceRef(d, frag.source_id, frag.locator)}</dd>
         ${a.evidence_source_id ? `<dt>Supporting material</dt><dd>${sourceRef(d, a.evidence_source_id, a.evidence_locator)}</dd>` : ''}
       </dl>`;

@@ -13,11 +13,12 @@ The current tables (corpus version 0.1-draft) were imported from the author's wo
 | Field | Allowed values |
 |---|---|
 | language (`lang`, `source_lang`, `compared_with`, `definition_lang`) | `en`, `ru`, `kk`; a source written in several languages uses `ru/kk` |
-| `link_type` | `confirmed_translation`, `parallel_unknown_direction`, `comparable_text`, `illustrative_translation` |
+| `link_type_en`, `link_type_ru`, `link_type_kk` | `confirmed_translation`, `parallel_unknown_direction`, `comparable_text`, `illustrative_translation` |
 | `alignment_status` | `aligned`, `in_review` |
 | `dataset` (terms, units) | `research` (research corpus), `demo` (shown only in Demo mode, marked *Illustrative example*), `draft` (not published) |
 | `check_status` (term forms, annotations) | `verified`, `source_referenced`, `pending_validation`, `illustrative` |
 | `training` | `yes`, `no` (empty = `no`) |
+| `is_document` (sources) | `yes`, `no` (empty = `yes`) |
 
 Validation statuses (from the corpus description):
 
@@ -49,6 +50,7 @@ IDs are permanent (other tables refer to them); labels may be edited. The interf
 | url | Link (empty for books and the author's own translations) |
 | **accessed** | Date of access |
 | edition, note | Edition; verification note |
+| is_document | `no` for sources made by the author (own translations, training texts). They are not counted as source documents on the Dashboard and may not back a `confirmed_translation` |
 
 ## `terms.csv` and `term_forms.csv`
 
@@ -62,14 +64,21 @@ A language without a form is shown as *Not available*.
 ## `units.csv` and `fragments.csv`
 
 `units.csv`: **unit_id**, title (if empty the interface shows "topic · genre"), **genre_id**, **topic_id**,
-term_ids (`;` list), **link_type**, source_lang (language of the original according to the source), direction_basis,
-**alignment_status**, training, **dataset**, note.
+term_ids (`;` list), link_type_en, link_type_ru, link_type_kk, source_lang (language of the original according to
+the source), direction_basis, **alignment_status**, training, **dataset**, note.
 
+- The link type belongs to each language, not to the unit: it says how that language's text relates to the original.
+  The `source_lang` column stays empty; every other language with a fragment must have a type; a language without
+  fragments has none. Example: U015 — EN original, RU `confirmed_translation` (official ICAO translation),
+  KK `illustrative_translation` (the author's translation, S19).
 - `confirmed_translation` requires `source_lang` and `direction_basis`; `illustrative_translation` requires `source_lang`.
-  The interface shows the translation direction only for these two link types.
-- Rubric scoring is available for confirmed and illustrative translations and for units with `training=yes`
-  (training examples; they require `source_lang` as the reference text). U003 is marked as a training example
-  because the corpus description uses it as the rubric example.
+  The direction sign lists the languages with these two link types; only comparable texts read *Not a translation
+  pair*; a parallel version reads *Direction not established*.
+- Rubric scoring (ТЗ 4.4) is available for a language pair whose target is a `confirmed_translation`, and for units with
+  `training=yes` (training examples; they require `source_lang` as the reference text). Other pairs take a comparison
+  comment. U003 is marked as a training example because the corpus description uses it as the rubric example.
+- Corpus v0.1 has one link type per unit; `tools/import_xlsx.py` turns it into per-language types (a fragment from
+  the author's own source becomes `illustrative_translation`). A workbook with `link_type_en/ru/kk` columns is used as is.
 - A `research` unit may link only to `research` terms.
 
 `fragments.csv`: **unit_id**, **lang**, **seq** (sentence number 1, 2, … within the unit and language), **text**,
@@ -95,7 +104,8 @@ every export.
 The Dashboard counts annotated units of the visible dataset (Research: `research` units; Demo: `research` + `demo`)
 after the filters. Frequency = number of units with at least one annotation carrying the label; share = frequency / N
 annotated units, one decimal place. All annotations count regardless of their check status, as in the author's
-statistics sheet; the status is shown as a label. For version 0.1-draft the research corpus gives N = 22, e.g.
+statistics sheet; the status is shown as a label. The *Link type* filter applies to each annotation's language pair.
+*Source documents* counts sources with `is_document = yes` only. For version 0.1-draft the research corpus gives N = 22, e.g.
 Terminological equivalence 10 of 22 = 45.5% (checked by `tools/lib.test.js`).
 
 ## What the build checks
@@ -103,4 +113,5 @@ Terminological equivalence 10 of 22 = 45.5% (checked by `tools/lib.test.js`).
 Missing files or required columns, empty required fields, duplicate IDs, unknown vocabulary or fixed values, references
 to missing records, highlight text not found or overlapping, invalid numbers and dates, a confirmed direction without
 its basis, illustrative translations and training examples without `source_lang`, research units linked to
-non-research terms. Each error reads `table.csv:line: problem`.
+non-research terms, a link type on the original language or missing on a translated one, a `confirmed_translation`
+fragment citing the author's own source. Each error reads `table.csv:line: problem`.

@@ -14,6 +14,11 @@
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ESC[c]);
   const $ = sel => document.querySelector(sel);
+  // Free text (explanations, notes, titles) is often Russian or Kazakh inside the English UI: tag its language.
+  const txt = s => {
+    const lang = Lib.langOf(s);
+    return lang ? `<span lang="${lang}">${esc(s)}</span>` : esc(s);
+  };
 
   // trailing space keeps adjacent badges as separate words for screen readers and copy-paste
   const badge = (text, kind) => `<span class="badge badge-${kind}">${esc(text)}</span> `;
@@ -38,11 +43,11 @@
       const s = d.sources[id];
       if (!s) return esc(id);
       const title = /^https?:\/\//.test(s.url)
-        ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>` : esc(s.title);
+        ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${txt(s.title)}</a>` : txt(s.title);
       return `${title}, ${esc(s.organization)} <span class="id">[${esc(id)}]</span>`;
     };
     const list = String(ids || '').split(';').map(x => x.trim()).filter(Boolean);
-    return list.map(one).join('; ') + (locator ? ` · ${esc(locator)}` : '');
+    return list.map(one).join('; ') + (locator ? ` · ${txt(locator)}` : '');
   }
 
   // BOM keeps Kazakh/Russian letters intact when the CSV is opened in Excel.
@@ -65,19 +70,25 @@
   // In-view selections update the address without re-rendering (replaceState fires no hashchange).
   const setHash = hash => history.replaceState(null, '', hash);
 
+  // An unknown ID in the address says so instead of silently showing an empty view.
+  const notFound = (what, id, back, label) => `<div class="empty" role="status"><p><strong>${esc(what)} “${esc(id)}” not found.</strong>
+    It may have been renamed, or it belongs to the other dataset.</p><p><a href="${back}">${esc(label)}</a></p></div>`;
+
   const underDevelopment = () => `<h1>Corpus under development</h1>
     <div class="empty"><p>The research corpus has no approved records yet. They appear here once the author publishes them.</p>
     <p>To explore the prototype now, open the illustrative demo dataset.</p>
     <p><button type="button" data-action="mode" data-mode="demo">Show demo dataset</button></p></div>`;
 
-  function render() {
+  // focus: move focus to the new page's heading. Not on first load, so Tab still reaches "Skip to content".
+  function render(focus) {
     const d = Lib.datasetFor(window.ATL_DATA, mode());
     const r = route();
-    const view = App.views[r.name] ? r.name : 'home';
+    const view = App.views[r.name] ? r.name : 'missing';
     $('#banner').hidden = d.mode !== 'demo';
+    document.body.classList.toggle('demo', d.mode === 'demo');
     $('#mode').innerHTML = `<span id="mode-label">Dataset</span>
       <span class="seg" role="group" aria-labelledby="mode-label">
-        <button type="button" data-action="mode" data-mode="research" aria-pressed="${d.mode === 'research'}">Research corpus</button>
+        <button type="button" data-action="mode" data-mode="research" aria-pressed="${d.mode === 'research'}">Research<span class="wide"> corpus</span></button>
         <button type="button" data-action="mode" data-mode="demo" aria-pressed="${d.mode === 'demo'}">Demo</button>
       </span>`;
     document.querySelectorAll('nav a').forEach(a => {
@@ -89,7 +100,7 @@
     if (d.empty && NEEDS_CORPUS.has(view)) main.innerHTML = underDevelopment();
     else App.views[view](main, d, r.arg);
     const target = main.querySelector('[data-focus]') || main.querySelector('h1');
-    if (target) {
+    if (focus !== false && target) {
       target.tabIndex = -1;
       target.focus();
     }
@@ -107,10 +118,17 @@
       if (action === 'mode' && el.dataset.mode !== mode()) { store.set(MODE_KEY, el.dataset.mode); render(); }
       if (action === 'skip') { e.preventDefault(); $('#main').focus(); }
     });
-    window.addEventListener('hashchange', render);
-    render();
+    window.addEventListener('hashchange', () => render());
+    render(false);
   }
 
-  window.App = { views: {}, store, esc, badge, checkBadge, statusBadge, usedVocab, langSign, options, sourceRef, download, setHash, render };
+  const views = {
+    missing: main => {
+      main.innerHTML = `<h1>Page not found</h1>
+        <div class="empty"><p>The address “${esc(location.hash)}” does not match any page of the platform.</p>
+        <p><a href="#/">Go to the home page</a></p></div>`;
+    },
+  };
+  window.App = { views, store, esc, txt, badge, checkBadge, statusBadge, usedVocab, langSign, options, sourceRef, notFound, download, setHash, render };
   document.addEventListener('DOMContentLoaded', start);
 })();

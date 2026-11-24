@@ -33,6 +33,16 @@ def cell(v):
     return "" if v in ("—", "-") else v  # the workbook uses a dash for "no locator"
 
 
+def link_types(u, author):
+    """One link type per language. A workbook with link_type_en/ru/kk columns (corpus v0.2) is used as is;
+    v0.1 has one type per unit, so a fragment from the author's own source becomes an illustrative translation."""
+    src = u["original_lang"].lower()
+    return {f"link_type_{lang}": "" if lang == src or not u[f"text_{lang}"] else
+            u.get(f"link_type_{lang}") or
+            ("illustrative_translation" if u[f"source_{lang}"] in author else u["link_type"])
+            for lang in LANGS}
+
+
 def sheet(wb, name):
     ws = wb[name]
     header = [c.value for c in ws[1]]
@@ -54,6 +64,8 @@ def occurrence(text, span, start):
 
 def convert(wb):
     terms, units, anns = sheet(wb, "Terms"), sheet(wb, "Units"), sheet(wb, "Annotations")
+    sources = sheet(wb, "Sources")
+    author = {s["source_id"] for s in sources if s["organization"] == "author"}
     by_unit = {u["unit_id"]: u for u in units}
     out = {
         "vocab/difficulties": [{"id": d["difficulty_id"], "code": d["code"], "label": d["label_en"],
@@ -62,13 +74,14 @@ def convert(wb):
         "vocab/strategies": [{"id": s["strategy_id"], "code": s["code"], "label": s["label_en"],
                               "label_ru": s["label_ru"], "label_kk": s["label_kk"]} for s in sheet(wb, "Ref_Strategies")],
         # term topics and unit topics share one vocabulary; ids are slugs of the workbook labels
-        "vocab/topics": [{"id": slug(t), "label": t}
+        "vocab/topics": [{"id": slug(t), "label": t[:1].upper() + t[1:]}
                          for t in dict.fromkeys([x["topic"] for x in terms] + [u["topic"] for u in units])],
         "vocab/genres": [{"id": slug(g), "label": g} for g in dict.fromkeys(u["genre"] for u in units)],
         "sources": [{"source_id": s["source_id"], "title": s["title"], "organization": s["organization"],
                      "lang": s["language"].lower(), "genre": s["genre"], "audience": s["audience"], "url": s["url"],
-                     "accessed": s["access_date"], "edition": s["edition"], "note": s["verification_note"]}
-                    for s in sheet(wb, "Sources")],
+                     "accessed": s["access_date"], "edition": s["edition"], "note": s["verification_note"],
+                     "is_document": "no" if s["source_id"] in author else "yes"}
+                    for s in sources],
         # definitions are written in Russian; their source is taken from the Russian form
         "terms": [{"term_id": t["term_id"], "topic_id": slug(t["topic"]), "definition": t["definition_ru"],
                    "definition_lang": "ru", "definition_source_id": t["source_ru"], "context": t["context_en"],
@@ -78,7 +91,7 @@ def convert(wb):
                         "source_id": t[f"source_{lang}"], "check_status": t[f"status_{lang}"]}
                        for t in terms for lang in LANGS if t[lang]],
         "units": [{"unit_id": u["unit_id"], "genre_id": slug(u["genre"]), "topic_id": slug(u["topic"]),
-                   "term_ids": u["term_ids"], "link_type": u["link_type"], "source_lang": u["original_lang"].lower(),
+                   "term_ids": u["term_ids"], **link_types(u, author), "source_lang": u["original_lang"].lower(),
                    "direction_basis": u["direction_basis"], "alignment_status": u["alignment_status"],
                    "training": "yes" if u["unit_id"] in TRAINING_UNITS else "no", "dataset": u["dataset"],
                    "note": u["note"]} for u in units],

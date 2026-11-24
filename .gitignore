@@ -5,3 +5,4 @@ __pycache__/
 *.docx
 *.xlsx
 .env
+*.pdf

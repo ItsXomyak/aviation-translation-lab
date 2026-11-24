@@ -5,11 +5,18 @@
   const state = { genre: '', topic: '', pair: '', link: '' };
   const PAIR_LABELS = { 'en-ru': 'EN–RU', 'en-kk': 'EN–KK', 'ru-kk': 'RU–KK' };
   const ID_COLUMNS = new Set(['unit_id', 'annotation_id']);
-  const REF_COLUMNS = new Set(['sources', 'evidence']);
-  // Same values as the CSV; source references are only laid out one per line.
-  const cell = (key, value) => (REF_COLUMNS.has(key)
-    ? `<td class="refs">${String(value).split('; ').map(esc).join('<br>')}</td>`
-    : `<td${ID_COLUMNS.has(key) ? ' class="id"' : ''}>${esc(value)}</td>`);
+  // Same values as the CSV, except sources: the table shows IDs (full reference on hover), the CSV keeps locators.
+  const cell = (d, r, key) => {
+    const value = r[key];
+    if (key === 'sources') {
+      return `<td class="id">${String(value).split('; ').map(ref => {
+        const id = ref.split(' ')[0];
+        return `<span title="${esc(((d.sources[id] || {}).title || '') + ' · ' + ref)}">${esc(id)}</span>`;
+      }).join('<br>')}</td>`;
+    }
+    if (key === 'span') return `<td lang="${esc(String(r.lang).toLowerCase())}">${esc(value)}</td>`;
+    return `<td${ID_COLUMNS.has(key) ? ' class="id"' : ''}>${esc(value)}</td>`;
+  };
 
   App.views.dashboard = (main, d) => {
     main.innerHTML = `<h1>Research Dashboard</h1>
@@ -29,8 +36,11 @@
       Object.assign(state, Object.fromEntries(new FormData(form)));
       const s = Lib.stats(d, state);
       rows = s.rows;
-      out.innerHTML = s.units ? report(s)
+      out.innerHTML = s.units ? report(d, s)
         : '<p class="empty" role="status">No records match the selected filters. Reset the filters or choose another combination.</p>';
+      const wrap = out.querySelector('.table-wrap');
+      // ponytail: checked on each update, not on window resize
+      if (wrap) out.querySelector('.scroll-hint').hidden = wrap.scrollWidth <= wrap.clientWidth;
     };
 
     form.addEventListener('input', update);
@@ -51,13 +61,13 @@
       <span class="bar-label"><span>${label}</span><span class="val">${value}</span></span>
       <div class="track" aria-hidden="true"><div class="fill" style="width:${width.toFixed(1)}%"></div></div></li>`;
 
-  function report(s) {
+  function report(d, s) {
     const n = s.annotatedUnits;
     const shareChart = (title, items) => `<section class="panel"><h2>${title}</h2><ul class="bars">${items.map(i =>
       bar(esc(i.label), `${i.count} of ${n} · ${Lib.percent(i.share)}`, i.share * 100)).join('')}</ul></section>`;
     const max = Math.max(1, ...s.termsByTopic.map(t => t.count));
     return `<div class="counters">
-        <p class="counter panel"><strong>${s.documents}</strong>Source documents in selection · ${s.totalDocuments} in corpus</p>
+        <p class="counter panel"><strong>${s.documents}</strong>Source documents in selection · ${s.totalDocuments} in corpus (the author's own translations are not counted)</p>
         <p class="counter panel"><strong>${s.terms}</strong>Term entries in selection · ${s.totalTerms} in corpus</p>
         <p class="counter panel"><strong>${n}</strong>Annotated units of ${s.units} in selection</p>
       </div>
@@ -71,9 +81,10 @@
       </div>
       <div class="table-head"><h2>Annotated units in selection</h2>
         <button type="button" class="secondary" id="csv">Download CSV · ${s.rows.length} rows</button></div>
+      <p class="scroll-hint muted" aria-hidden="true">Scroll the table sideways to see all ${Lib.TABLE_COLUMNS.length} columns →</p>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Annotated units table"><table>
         <thead><tr>${Lib.TABLE_COLUMNS.map(c => `<th scope="col">${c[1]}</th>`).join('')}</tr></thead>
-        <tbody>${s.rows.map(r => `<tr>${Lib.TABLE_COLUMNS.map(c => cell(c[0], r[c[0]])).join('')}</tr>`).join('')
+        <tbody>${s.rows.map(r => `<tr>${Lib.TABLE_COLUMNS.map(c => cell(d, r, c[0])).join('')}</tr>`).join('')
           || `<tr><td colspan="${Lib.TABLE_COLUMNS.length}">No annotations in this selection.</td></tr>`}</tbody>
       </table></div>`;
   }

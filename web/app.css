@@ -25,7 +25,9 @@
 /* ---------- base ---------- */
 * { box-sizing: border-box; }
 html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--navy); color: var(--paper); font: 400 1rem/1.55 var(--body); overflow-wrap: anywhere; }
+body { margin: 0; background: var(--navy); color: var(--paper); font: 400 1rem/1.55 var(--body); overflow-wrap: break-word; }
+/* hyphenate running prose only (needs a lang attribute); corpus fragments are never hyphenated */
+.prose, .ann-panel dd, .basis, .lead { hyphens: auto; -webkit-hyphens: auto; }
 a { color: var(--gold); text-underline-offset: .18em; }
 a:hover { color: var(--paper); }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
@@ -49,7 +51,7 @@ code, .mono { font-family: var(--mono); font-size: .88em; }
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 2rem; padding: .8rem clamp(1rem, 3vw, 2rem); background: var(--navy-deep); border-bottom: 3px solid var(--gold); }
 .brand { color: var(--paper); text-decoration: none; font: 700 1.25rem/1.1 var(--display); letter-spacing: .02em; }
 .brand:hover { color: var(--paper); }
-.brand small { display: block; margin-top: .25rem; color: var(--gold); font: 600 .62rem/1 var(--body); letter-spacing: .18em; text-transform: uppercase; }
+.brand small { display: block; margin-top: .25rem; color: var(--gold); font: 600 .75rem/1 var(--body); letter-spacing: .18em; text-transform: uppercase; }
 nav ul { display: flex; flex-wrap: wrap; gap: .2rem 1.25rem; list-style: none; margin: 0; padding: 0; }
 nav a { display: block; padding: .3rem 0; color: var(--mist); font-weight: 600; text-decoration: none; border-bottom: 3px solid transparent; }
 nav a:hover { color: var(--paper); }
@@ -120,6 +122,7 @@ textarea { resize: vertical; }
 .kicker { margin: 0 0 .6rem; color: var(--gold); font: 700 .8rem/1 var(--body); letter-spacing: .2em; text-transform: uppercase; }
 .hero h1 { margin: 0 0 .75rem; font-size: clamp(2.4rem, 8vw, 4.6rem); letter-spacing: 0; }
 .lead { max-width: 40rem; margin: 0; font-size: clamp(1.1rem, 2.2vw, 1.35rem); }
+.byline { margin: .9rem 0 0; color: var(--mist); font-size: .95rem; }
 .board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 2.25rem 0 .5rem; color: var(--paper); text-decoration: none; background: var(--navy-deep); border: 2px solid var(--gold); border-radius: var(--radius); }
 .board:hover { color: var(--paper); border-color: var(--paper); }
 .board > span { display: flex; flex-direction: column; align-items: flex-start; gap: .65rem; padding: 1.1rem 1.25rem 1.3rem; border-right: 1px solid var(--line); font-size: clamp(1.15rem, 2.4vw, 1.6rem); font-weight: 700; line-height: 1.2; }
@@ -143,6 +146,11 @@ textarea { resize: vertical; }
 .results a:hover { background: var(--navy-raised); }
 .results a[aria-current="true"] { background: var(--navy-raised); border-left-color: var(--gold); }
 .results .empty { border-left: 1px dashed var(--line); }
+/* the card stays in view while the long term list scrolls (wide screens; narrow screens scroll to it on focus) */
+@media (min-width: 761px) {
+  #card { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; }
+  .demo #card { top: 3rem; max-height: calc(100vh - 4rem); }
+}
 .term { margin: 0 0 .5rem; font: 700 clamp(1.8rem, 4vw, 2.5rem)/1.1 var(--body); }
 .term::first-letter { text-transform: uppercase; }
 .form { margin-bottom: 1rem; }
@@ -160,11 +168,13 @@ textarea { resize: vertical; }
 .strip-title p { margin: 0; }
 .strip-route { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: .5rem; font-size: .85rem; color: var(--mist); }
 .basis { margin: 0 0 1rem; color: var(--mist); font-size: .85rem; }
-.nowrap { white-space: nowrap; }
-.hl { display: inline; white-space: normal; padding: 0 .2em; font: inherit; color: var(--paper); background: var(--gold-deep); border: 0; border-bottom: 3px solid var(--gold); border-radius: 2px; cursor: pointer; }
+.hl { padding: 0 .2em; color: var(--paper); background: var(--gold-deep); border-bottom: 3px solid var(--gold); border-radius: 2px; cursor: pointer; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .hl:hover { background: #66562c; color: var(--paper); border-color: var(--gold); }
 .hl.pending { border-bottom-style: dashed; }
-.hl sup { margin-left: .2em; color: var(--gold); font: 700 .62em/1 var(--mono); }
+.hl sup { margin-left: .2em; color: var(--gold); font: 700 .75em/1 var(--mono); }
+.legend { margin: -.25rem 0 1rem; color: var(--mist); font-size: .85rem; }
+.hl-sample { padding: 0 .2em; color: var(--paper); border-bottom: 3px solid var(--gold); }
+.hl-sample.pending { border-bottom-style: dashed; }
 .hl[aria-expanded="true"] { background: var(--gold); color: var(--navy); }
 .hl[aria-expanded="true"] sup { color: var(--navy); }
 .ann-panel { margin: 1rem 0; border: 1px solid var(--gold); border-left-width: 6px; }
@@ -189,11 +199,12 @@ textarea { resize: vertical; }
 .fill { height: 100%; background: var(--gold); border-radius: 1px; }
 .table-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin: 2rem 0 .5rem; }
 .table-head h2 { margin: 0; }
+.scroll-hint { margin: 0 0 .25rem; font-size: .8rem; }
 
 /* tables */
 .table-wrap { margin: .5rem 0 1rem; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 .table-wrap table { width: 100%; min-width: 40rem; border-collapse: collapse; font-size: .88rem; }
-th, td { padding: .55rem .7rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: normal; }
+th, td { padding: .55rem .5rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); overflow-wrap: normal; }
 th { color: var(--gold); background: var(--navy-deep); font-weight: 700; }
 tbody tr:nth-child(even) { background: rgba(255, 255, 255, .03); }
 tbody tr:last-child td { border-bottom: 0; }
@@ -238,5 +249,14 @@ legend { padding: 0 .4rem; color: var(--gold); font: 700 1.05rem/1 var(--display
 @media (max-width: 560px) {
   .ann-panel dl { grid-template-columns: minmax(0, 1fr); gap: .1rem; }
   .ann-panel dd { margin-bottom: .55rem; }
-  .top { gap: .5rem 1rem; }
+  /* header: brand + dataset switch on one row, the module menu scrolls sideways on the second */
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .4rem .75rem; padding-bottom: 0; }
+  .brand { font-size: 1.05rem; }
+  .brand small { display: none; }
+  .top .mode { grid-row: 1; grid-column: 2; }
+  .top nav { grid-column: 1 / -1; overflow-x: auto; margin: 0 -1rem; padding: 0 1rem; scrollbar-width: none; }
+  nav ul { flex-wrap: nowrap; gap: 1.1rem; }
+  nav a { white-space: nowrap; }
+  #mode-label, .seg .wide { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .seg button { padding: .3rem .55rem; }
 }

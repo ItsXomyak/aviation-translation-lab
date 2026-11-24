@@ -15,7 +15,8 @@
   const esc = s => String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, c => ESC[c]);
   const $ = sel => document.querySelector(sel);
 
-  const badge = (text, kind) => `<span class="badge badge-${kind}">${esc(text)}</span>`;
+  // trailing space keeps adjacent badges as separate words for screen readers and copy-paste
+  const badge = (text, kind) => `<span class="badge badge-${kind}">${esc(text)}</span> `;
   const checkBadge = s => (s === 'pending' ? badge('Pending validation', 'pending') : badge('Verified', 'ok'));
   const statusBadge = s => (s === 'illustrative' ? badge('Illustrative example', 'illustrative') : '');
   const options = (map, selected, any = 'Any') => `<option value="">${esc(any)}</option>` +

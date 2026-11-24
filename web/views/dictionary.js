@@ -8,8 +8,8 @@
     let selected = selectedId;
     main.innerHTML = `<h1>Trilingual Aviation Dictionary</h1>
       <form class="filters" role="search" id="dict-form">
-        <div><label for="q">Search term or abbreviation (EN, RU, KK)</label>
-          <input id="q" name="q" type="search" autocomplete="off" value="${esc(state.q)}"></div>
+        <div><label for="q">Search term or abbreviation</label>
+          <input id="q" name="q" type="search" autocomplete="off" placeholder="EN, RU or KK" value="${esc(state.q)}"></div>
         <div><label for="topic">Topic</label>
           <select id="topic" name="topic">${options(d.vocab.topics, state.topic)}</select></div>
         <div><label for="difficulty">Difficulty type</label>

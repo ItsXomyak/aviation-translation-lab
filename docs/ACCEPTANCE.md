@@ -1,6 +1,6 @@
 # Acceptance results
 
-Checked on 2026-11-24 against ТЗ v1.0, section 7. Corpus version `0.1-draft` (imported from the author's workbook),
+Checked on 2026-11-24 against ТЗ v1.0, section 7. Published at https://93.171.232.191.sslip.io. Corpus version `0.1-draft` (imported from the author's workbook),
 Chrome on macOS, local server `python3 -m http.server -d dist 8765` unless noted otherwise.
 
 ## Automated tests
@@ -38,7 +38,7 @@ ST01 13, ST02 2, ST03 4, ST04 4, ST05 6, ST07 2, ST08 7; 45.5% for D01; 20 sourc
 | Defence readiness | Works locally without network | Headless Chrome rendered `file://…/dist/index.html`; no external URLs loaded by `dist/` | Pass |
 | | Readable on a projector | 18 px base font, navy/gold/light palette, every colour cue paired with a text label | Pass (visual check) |
 | | No horizontal page scroll at 375 px | 15 routes × 2 modes in a 375 px frame: `scrollWidth == clientWidth` | Pass: 0 px overflow everywhere; wide tables scroll inside their own region |
-| | Works from the published link | — | Pending: deployment to the VPS (`<ip>.sslip.io`) |
+| | Works from the published link | https://93.171.232.191.sslip.io: the 11 served files compared byte for byte with the local build of the same commit; headers checked; true 375 px viewport via Chrome DevTools device emulation, 8 routes × 2 modes | Pass: files identical, HTTP/2 200, valid Let's Encrypt certificate, CSP and no-cache headers present, 0 px horizontal overflow in all 16 checks |
 
 ## Defence scenario (ТЗ 7.2)
 

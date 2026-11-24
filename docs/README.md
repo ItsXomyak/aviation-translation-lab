@@ -3,6 +3,9 @@
 Research prototype for the comparative analysis of aviation discourse translation (English · Russian · Kazakh).
 Five modules: Dictionary, Compare, Dashboard, Assessment, Methodology.
 
+- Live: https://93.171.232.191.sslip.io
+- Repository: https://github.com/ItsXomyak/aviation-translation-lab
+
 ## Run locally (works offline)
 
 Requirements: Python 3.8+ (standard library only). Node 18+ is needed only to run the JavaScript tests.
@@ -39,6 +42,15 @@ git clone <repository-url> aviation-translation-lab && cd aviation-translation-l
 cp .env.example .env            # set SITE_ADDRESS=<server-ip>.sslip.io
 docker compose up -d --build
 ```
+
+### Production
+
+The live site runs as a Coolify application on the VPS, behind the server's Traefik proxy: `SITE_ADDRESS=:8080`,
+no published ports, Traefik terminates TLS with Let's Encrypt for `93.171.232.191.sslip.io`. To publish a corpus
+update, push to `main` and redeploy the application in Coolify (it pulls `main` and rebuilds the image; a rolling
+update replaces the container only after a successful build).
+
+### Standalone server
 
 Update after a corpus change:
 

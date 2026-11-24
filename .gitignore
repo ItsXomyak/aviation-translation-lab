@@ -1,0 +1,5 @@
+dist/
+__pycache__/
+.DS_Store
+# TZ docx kept local until repo visibility is decided
+*.docx

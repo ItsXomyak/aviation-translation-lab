@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aviation Translation Lab</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-action="skip">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="#/">Aviation Translation Lab <small>Research Prototype</small></a>
+    <nav aria-label="Modules">
+      <ul>
+        <li><a href="#/dictionary">Dictionary</a></li>
+        <li><a href="#/compare">Compare</a></li>
+        <li><a href="#/dashboard">Dashboard</a></li>
+        <li><a href="#/assess">Assessment</a></li>
+        <li><a href="#/method">Methodology</a></li>
+      </ul>
+    </nav>
+    <div class="mode" id="mode"></div>
+  </header>
+  <div class="banner" id="banner" role="note" hidden>DEMO DATASET — illustrative records, not research results</div>
+  <main id="main" tabindex="-1"></main>
+  <footer class="foot"><span id="version"></span></footer>
+  <script src="data.js"></script>
+  <script src="lib.js"></script>
+  <script src="app.js"></script>
+  <script src="views/home.js"></script>
+  <script src="views/dictionary.js"></script>
+  <script src="views/compare.js"></script>
+  <script src="views/dashboard.js"></script>
+  <script src="views/assess.js"></script>
+  <script src="views/method.js"></script>
+</body>
+</html>

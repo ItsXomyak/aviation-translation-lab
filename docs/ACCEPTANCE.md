@@ -94,7 +94,7 @@ Findings from `Аудит_платформы_Aviation_Translation_Lab.pdf`; all 
 | 12 | Lower-case topic names | Fixed: the 11 topics of `ref_topics` (EN labels) in the filters and the *Terms by topic* chart |
 | 13 | No overall comment in score mode | Fixed |
 | 14 | Justification optional | Fixed: required for criteria scored 0 or 1 |
-| 15 | No author, supervisor, university on the home page | Fixed for author and supervisor; university waits for the author |
+| 15 | No author, supervisor, university on the home page | Fixed: author, supervisor and L.N. Gumilyov Eurasian National University |
 | 16 | "Research Prototype" twice | Fixed: hero reads *Master's dissertation · 2026* |
 | 17 | Russian text without `lang` | Fixed: explanations, notes, titles, locators tagged `ru`/`kk` |
 | 18 | Skip link unreachable | Fixed: focus moves only on navigation |

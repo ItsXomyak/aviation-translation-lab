@@ -1,74 +1,78 @@
 // Run: node --test tools/lib.test.js
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const L = require('../web/lib.js');
 
 const vocab = {
-  topics: { aerodrome: 'Aerodrome' },
-  genres: { manual: 'Manual', phraseology: 'Phraseology' },
-  difficulties: { modality: 'Modality', syntax: 'Syntax' },
-  strategies: { calque: 'Calque' },
+  topics: { aerodrome: 'aerodrome' },
+  genres: { atc: 'ATC radiotelephony', reg: 'regulatory definition' },
+  difficulties: { D04: 'Modality', D03: 'Syntax' },
+  strategies: { ST03: 'Calque' },
 };
-const sources = { S1: { source_id: 'S1', title: 'Source', genre_id: 'manual' } };
-const ann = (id, diffs, check = 'verified') => ({
+const sources = { S1: { source_id: 'S1', title: 'Source' } };
+const ann = (id, diffs, check = 'pending_validation') => ({
   annotation_id: id, label: 'A1', lang: 'ru', seq: 1, span_text: 'x', start: 0, end: 1, compared_with: 'en',
-  difficulty_ids: diffs, strategy_ids: [], explanation: 'e', evidence_source_id: 'S1', evidence_locator: 'p. 2',
-  check_status: check,
+  difficulty_ids: diffs, strategy_ids: [], explanation: 'e', check_status: check,
 });
 const frag = lang => ({ lang, seq: 1, text: 'x', source_id: 'S1', locator: 'p. 1' });
-const unit = (id, status, diffs, extra = {}) => ({
-  unit_id: id, title: id, topic_id: 'aerodrome', term_ids: ['T1'], link_type: 'confirmed_translation',
-  source_lang: 'en', direction_basis: 'b', alignment_status: 'aligned', training: false, status,
+const unit = (id, dataset, diffs, extra = {}) => ({
+  unit_id: id, title: '', genre_id: 'atc', topic_id: 'aerodrome', term_ids: ['T1'], link_type: 'confirmed_translation',
+  source_lang: 'en', direction_basis: 'b', alignment_status: 'aligned', training: false, dataset,
   fragments: [frag('en'), frag('ru')], annotations: [ann(id + '-A', diffs)], ...extra,
 });
 const runway = {
-  term_id: 'T1', topic_id: 'aerodrome', difficulty_ids: ['syntax'], status: 'approved', forms: [
-    { lang: 'en', form: 'runway', abbreviation: 'RWY', check_status: 'verified' },
-    { lang: 'ru', form: 'Взлётно-посадочная полоса', abbreviation: 'ВПП', check_status: 'verified' },
-    { lang: 'kk', form: 'Ұшу-қону жолағы', abbreviation: '', check_status: 'pending' }],
+  term_id: 'T1', topic_id: 'aerodrome', difficulty_ids: ['D03'], dataset: 'research', forms: [
+    { lang: 'en', form: 'runway', abbreviation: 'RWY', check_status: 'source_referenced' },
+    { lang: 'ru', form: 'Взлётно-посадочная полоса', abbreviation: 'ВПП', check_status: 'source_referenced' },
+    { lang: 'kk', form: 'Ұшу-қону жолағы', abbreviation: 'ҰҚЖ', check_status: 'pending_validation' }],
 };
 const DATA = {
   version: { current: { version: '1.0', date: '2026-11-24', changes: 'c' }, history: [] },
   vocab, sources, terms: [runway],
-  units: [unit('U1', 'approved', ['modality']), unit('U2', 'approved', ['syntax']), unit('U3', 'illustrative', ['modality'])],
+  units: [unit('U1', 'research', ['D04']), unit('U2', 'research', ['D03']), unit('U3', 'demo', ['D04'])],
   methodology: '',
 };
 
-test('modality: 1 of 2 approved units (50%), illustrative unit excluded', () => {
+test('modality: 1 of 2 research units (50%), demo unit excluded (ТЗ 7.1)', () => {
   const s = L.stats(L.datasetFor(DATA, 'research'));
-  const m = s.difficulties.find(d => d.id === 'modality');
+  const m = s.difficulties.find(d => d.id === 'D04');
   assert.equal(s.annotatedUnits, 2);
   assert.equal(m.count, 1);
   assert.equal(L.percent(m.share), '50%');
 });
 
-test('demo mode counts illustrative units too', () => {
+test('demo mode counts demo units too', () => {
   const s = L.stats(L.datasetFor(DATA, 'demo'));
   assert.equal(s.annotatedUnits, 3);
-  assert.equal(s.difficulties.find(d => d.id === 'modality').count, 2);
+  assert.equal(s.difficulties.find(d => d.id === 'D04').count, 2);
 });
 
-test('pending annotations are excluded in research mode only', () => {
-  const data = { ...DATA, units: [unit('U1', 'approved', [], { annotations: [ann('P', ['modality'], 'pending')] })] };
-  assert.equal(L.stats(L.datasetFor(data, 'research')).annotatedUnits, 0);
-  assert.equal(L.stats(L.datasetFor(data, 'demo')).annotatedUnits, 1);
+test('annotations count whatever their check status', () => {
+  const data = { ...DATA, units: [unit('U1', 'research', [], { annotations: [ann('P', ['D04'], 'verified')] }), unit('U2', 'research', ['D04'])] };
+  assert.equal(L.stats(L.datasetFor(data, 'research')).difficulties.find(d => d.id === 'D04').count, 2);
 });
 
 test('filters update counters, charts and rows together', () => {
   const ds = L.datasetFor(DATA, 'research');
   const all = L.stats(ds);
-  assert.deepEqual([all.units, all.documents, all.terms, all.rows.length], [2, 1, 1, 2]);
+  assert.deepEqual([all.units, all.documents, all.totalDocuments, all.terms, all.totalTerms, all.rows.length], [2, 1, 1, 1, 1, 2]);
   const none = L.stats(ds, { pair: 'en-kk' });
   assert.deepEqual([none.units, none.annotatedUnits, none.rows.length], [0, 0, 0]);
-  assert.equal(L.stats(ds, { genre: 'phraseology' }).units, 0);
-  assert.equal(L.stats(ds, { genre: 'manual', link: 'confirmed_translation' }).units, 2);
-  assert.equal(L.stats(ds, { link: 'comparable' }).units, 0);
+  assert.equal(L.stats(ds, { genre: 'reg' }).units, 0);
+  assert.equal(L.stats(ds, { genre: 'atc', link: 'confirmed_translation' }).units, 2);
+  assert.equal(L.stats(ds, { link: 'comparable_text' }).units, 0);
+  assert.deepEqual(all.termsByTopic, [{ id: 'aerodrome', label: 'aerodrome', count: 1 }]);
 });
 
-test('labels may sum to more than 100%', () => {
-  const data = { ...DATA, units: [unit('U1', 'approved', ['modality', 'syntax'])] };
+test('labels may sum to more than 100%; shares keep one decimal', () => {
+  const data = { ...DATA, units: [unit('U1', 'research', ['D04', 'D03'])] };
   const s = L.stats(L.datasetFor(data, 'research'));
   assert.equal(s.difficulties.reduce((sum, d) => sum + d.share, 0), 2);
+  assert.equal(L.percent(10 / 22), '45.5%');
 });
 
 test('dashboard CSV has exactly the filtered table rows', () => {
@@ -77,8 +81,7 @@ test('dashboard CSV has exactly the filtered table rows', () => {
   const lines = L.toCSV(L.exportRows(ds, s.rows), L.DASHBOARD_CSV_COLUMNS).trim().split('\r\n');
   assert.equal(lines.length, s.rows.length + 1);
   assert.equal(lines[0], L.DASHBOARD_CSV_COLUMNS.join(','));
-  assert.ok(lines[1].startsWith('research,1.0,U1,U1-A,RU,EN,x,Modality,'), lines[1]);
-  assert.ok(lines[1].includes('S1 (p. 1)'));
+  assert.ok(lines[1].startsWith('research,1.0,U1,U1-A,RU,EN,x,Modality,,Confirmed translation,ATC radiotelephony,aerodrome,S1 (p. 1),Pending validation'), lines[1]);
 });
 
 test('rubric: 2,1,2,2 gives 7; a missing score gives no total', () => {
@@ -100,12 +103,13 @@ test('assessment export contains scores and comments', () => {
   assert.ok(csv.includes('demo,1,U1,en→ru,1.0,R1.0,score,2,,1,"word ""x"", line 1",2,,2,,7,Complete'), csv);
 });
 
-test('incomplete assessment has no total; comparable units take comments only', () => {
+test('scoring: confirmed, illustrative and training units score; others take comments', () => {
   const ds = L.datasetFor(DATA, 'demo');
   assert.equal(L.assessmentRecord({ ds, unit: DATA.units[0], target: 'ru', scores: { terminology: 2 } }).status, 'Incomplete');
-  const comparable = { ...DATA.units[0], link_type: 'comparable' };
+  const comparable = { ...DATA.units[0], link_type: 'comparable_text' };
   assert.equal(L.isScorable(comparable), false);
   assert.equal(L.isScorable({ ...comparable, training: true }), true);
+  assert.equal(L.isScorable({ ...comparable, link_type: 'illustrative_translation' }), true);
   const rec = L.assessmentRecord({ ds, unit: comparable, target: 'ru', comment: 'c', scores: { terminology: 2 } });
   assert.deepEqual([rec.mode, rec.status, rec.terminology, rec.total], ['comment', 'Comment', '', '']);
 });
@@ -117,14 +121,14 @@ test('search: Kazakh fragment, case, abbreviation, ё/е, filters and empty resu
   assert.equal(L.searchTerms(terms, { q: 'rwy' }).length, 1);
   assert.equal(L.searchTerms(terms, { q: 'взлетно' }).length, 1);
   assert.equal(L.searchTerms(terms, { q: 'nonexistent' }).length, 0);
-  assert.equal(L.searchTerms(terms, { check: 'pending' }).length, 1);
+  assert.equal(L.searchTerms(terms, { check: 'pending_validation' }).length, 1);
   assert.equal(L.searchTerms(terms, { check: 'verified' }).length, 0);
-  assert.equal(L.searchTerms(terms, { difficulty: 'modality' }).length, 0);
+  assert.equal(L.searchTerms(terms, { difficulty: 'D04' }).length, 0);
   assert.equal(L.headword(runway), 'runway');
 });
 
-test('research mode hides illustrative records and reports an empty corpus', () => {
-  const demoOnly = { ...DATA, terms: [{ ...runway, status: 'illustrative' }], units: [unit('U3', 'illustrative', ['modality'])] };
+test('research mode hides demo records and reports an empty corpus', () => {
+  const demoOnly = { ...DATA, terms: [{ ...runway, dataset: 'demo' }], units: [unit('U3', 'demo', ['D04'])] };
   assert.equal(L.datasetFor(demoOnly, 'research').empty, true);
   const demo = L.datasetFor(demoOnly, 'demo');
   assert.equal(demo.empty, false);
@@ -132,9 +136,16 @@ test('research mode hides illustrative records and reports an empty corpus', () 
   assert.deepEqual(L.datasetFor({ ...DATA, terms: [] }, 'research').units[0].term_ids, []);
 });
 
-test('direction is shown only for confirmed translations', () => {
+test('direction is shown for confirmed and illustrative translations only', () => {
   assert.equal(L.direction(DATA.units[0]), 'EN → RU');
+  assert.equal(L.direction({ ...DATA.units[0], link_type: 'illustrative_translation' }), 'EN → RU');
   assert.equal(L.direction({ ...DATA.units[0], link_type: 'parallel_unknown_direction' }), 'Direction not established');
+  assert.equal(L.direction({ ...DATA.units[0], link_type: 'comparable_text' }), 'Direction not established');
+});
+
+test('unit title falls back to topic and genre', () => {
+  assert.equal(L.unitTitle(DATA, DATA.units[0]), 'Aerodrome · ATC radiotelephony');
+  assert.equal(L.unitTitle(DATA, { ...DATA.units[0], title: 'Landing' }), 'Landing');
 });
 
 test('segments split text around highlights', () => {
@@ -145,4 +156,20 @@ test('segments split text around highlights', () => {
 
 test('CSV escapes commas, quotes and newlines', () => {
   assert.equal(L.toCSV([{ a: 'x,y', b: 'say "hi"\nnow' }], ['a', 'b']), 'a,b\r\n"x,y","say ""hi""\nnow"\r\n');
+});
+
+// The author's workbook (sheet "Stats", dataset = research) is the reference for the real corpus.
+test('dashboard reproduces the author statistics for the research corpus', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'atl-'));
+  execFileSync('python3', [path.join(__dirname, 'build.py'), '--out', path.join(out, 'dist')]);
+  const js = fs.readFileSync(path.join(out, 'dist', 'data.js'), 'utf8');
+  const data = JSON.parse(js.slice(js.indexOf('=') + 1).trim().replace(/;$/, ''));
+  fs.rmSync(out, { recursive: true });
+  const s = L.stats(L.datasetFor(data, 'research'));
+  const counts = list => Object.fromEntries(list.filter(x => x.count).map(x => [x.id, x.count]));
+  assert.equal(s.annotatedUnits, 22);
+  assert.deepEqual(counts(s.difficulties), { D01: 10, D02: 5, D03: 5, D04: 7, D05: 8, D06: 10 });
+  assert.deepEqual(counts(s.strategies), { ST01: 13, ST02: 2, ST03: 4, ST04: 4, ST05: 6, ST07: 2, ST08: 7 });
+  assert.equal(L.percent(s.difficulties.find(d => d.id === 'D01').share), '45.5%');
+  assert.deepEqual([s.totalDocuments, s.totalTerms], [20, 54]);
 });

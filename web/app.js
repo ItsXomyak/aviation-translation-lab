@@ -17,17 +17,32 @@
 
   // trailing space keeps adjacent badges as separate words for screen readers and copy-paste
   const badge = (text, kind) => `<span class="badge badge-${kind}">${esc(text)}</span> `;
-  const checkBadge = s => (s === 'pending' ? badge('Pending validation', 'pending') : badge('Verified', 'ok'));
-  const statusBadge = s => (s === 'illustrative' ? badge('Illustrative example', 'illustrative') : '');
+  const CHECK_KINDS = { verified: 'ok', source_referenced: 'ref', pending_validation: 'pending', illustrative: 'illustrative' };
+  const checkBadge = s => badge(Lib.CHECK_LABELS[s] || s, CHECK_KINDS[s] || 'ref');
+  // record-level dataset: demo records are the ТЗ's "Illustrative example"
+  const statusBadge = dataset => (dataset === 'demo' ? badge('Illustrative example', 'illustrative') : '');
+  // vocabulary entries actually used by the given records (keeps filters free of options that match nothing)
+  const usedVocab = (map, records, key) => {
+    const used = new Set(records.map(r => r[key]));
+    return Object.fromEntries(Object.entries(map).filter(([id]) => used.has(id)));
+  };
+  // Airfield-style location sign for a language code; the full name is read by screen readers.
+  const LANG_NAMES = { en: 'English', ru: 'Russian', kk: 'Kazakh' };
+  const langSign = l => `<span class="sign"><span aria-hidden="true">${esc(l)}</span><span class="sr-only">${LANG_NAMES[l] || esc(l)}</span></span>`;
   const options = (map, selected, any = 'Any') => `<option value="">${esc(any)}</option>` +
     Object.entries(map).map(([v, l]) => `<option value="${esc(v)}"${v === selected ? ' selected' : ''}>${esc(l)}</option>`).join('');
 
-  function sourceRef(d, id, locator) {
-    const s = d.sources[id];
-    if (!s) return esc(id);
-    const title = /^https?:\/\//.test(s.url)
-      ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>` : esc(s.title);
-    return `${title}, ${esc(s.organization)}${locator ? ', ' + esc(locator) : ''} <span class="muted">[${esc(id)}]</span>`;
+  // A reference may list several sources ("S02;S09"); the locator belongs to the reference as a whole.
+  function sourceRef(d, ids, locator) {
+    const one = id => {
+      const s = d.sources[id];
+      if (!s) return esc(id);
+      const title = /^https?:\/\//.test(s.url)
+        ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>` : esc(s.title);
+      return `${title}, ${esc(s.organization)} <span class="id">[${esc(id)}]</span>`;
+    };
+    const list = String(ids || '').split(';').map(x => x.trim()).filter(Boolean);
+    return list.map(one).join('; ') + (locator ? ` · ${esc(locator)}` : '');
   }
 
   // BOM keeps Kazakh/Russian letters intact when the CSV is opened in Excel.
@@ -51,16 +66,20 @@
   const setHash = hash => history.replaceState(null, '', hash);
 
   const underDevelopment = () => `<h1>Corpus under development</h1>
-    <p>No approved research records have been published yet. The research corpus view shows approved records only.</p>
-    <p><button type="button" data-action="demo">Switch to Demo dataset</button></p>`;
+    <div class="empty"><p>The research corpus has no approved records yet. They appear here once the author publishes them.</p>
+    <p>To explore the prototype now, open the illustrative demo dataset.</p>
+    <p><button type="button" data-action="mode" data-mode="demo">Show demo dataset</button></p></div>`;
 
   function render() {
     const d = Lib.datasetFor(window.ATL_DATA, mode());
     const r = route();
     const view = App.views[r.name] ? r.name : 'home';
     $('#banner').hidden = d.mode !== 'demo';
-    $('#mode').innerHTML = `<span>Dataset: <strong>${d.mode === 'demo' ? 'Demo dataset' : 'Research corpus'}</strong></span>
-      <button type="button" class="secondary small" data-action="toggle-mode">Switch to ${d.mode === 'demo' ? 'research corpus' : 'demo dataset'}</button>`;
+    $('#mode').innerHTML = `<span id="mode-label">Dataset</span>
+      <span class="seg" role="group" aria-labelledby="mode-label">
+        <button type="button" data-action="mode" data-mode="research" aria-pressed="${d.mode === 'research'}">Research corpus</button>
+        <button type="button" data-action="mode" data-mode="demo" aria-pressed="${d.mode === 'demo'}">Demo</button>
+      </span>`;
     document.querySelectorAll('nav a').forEach(a => {
       if (a.getAttribute('href') === '#/' + view) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -85,14 +104,13 @@
       const el = e.target.closest('[data-action]');
       if (!el) return;
       const action = el.dataset.action;
-      if (action === 'toggle-mode') { store.set(MODE_KEY, mode() === 'demo' ? 'research' : 'demo'); render(); }
-      if (action === 'demo') { store.set(MODE_KEY, 'demo'); render(); }
+      if (action === 'mode' && el.dataset.mode !== mode()) { store.set(MODE_KEY, el.dataset.mode); render(); }
       if (action === 'skip') { e.preventDefault(); $('#main').focus(); }
     });
     window.addEventListener('hashchange', render);
     render();
   }
 
-  window.App = { views: {}, store, esc, badge, checkBadge, statusBadge, options, sourceRef, download, setHash, render };
+  window.App = { views: {}, store, esc, badge, checkBadge, statusBadge, usedVocab, langSign, options, sourceRef, download, setHash, render };
   document.addEventListener('DOMContentLoaded', start);
 })();

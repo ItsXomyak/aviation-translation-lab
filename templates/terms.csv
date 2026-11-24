@@ -1,1 +1,1 @@
-term_id,topic_id,definition,definition_source_id,definition_locator,context,difficulty_ids,difficulty_note,status
+term_id,topic_id,definition,definition_lang,definition_source_id,context,difficulty_ids,difficulty_note,dataset

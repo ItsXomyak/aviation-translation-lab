@@ -1,9 +1,9 @@
-id,label
-established_equivalent,Established equivalent
-borrowing,Borrowing
-calque,Calque
-descriptive,Descriptive translation
-explicitation,Explicitation
-generalization,Generalization
-compression,Compression
-syntactic_restructuring,Syntactic restructuring
+id,code,label,label_ru,label_kk
+ST01,established_equivalent,Established equivalent,Установленный эквивалент,Қалыптасқан балама
+ST02,borrowing,Borrowing,Заимствование (транскрипция/транслитерация/сохранение),Кірме сөз (сақтау)
+ST03,calque,Calque,Калькирование,Калька
+ST04,descriptive,Descriptive translation,Описательный перевод,Сипаттамалы аударма
+ST05,explicitation,Explicitation,Экспликация,Экспликация
+ST06,generalization,Generalization,Генерализация,Жалпылау
+ST07,compression,Compression,Компрессия,Компрессия
+ST08,syntactic_restructuring,Syntactic restructuring,Синтаксическая перестройка,Синтаксистік қайта құру

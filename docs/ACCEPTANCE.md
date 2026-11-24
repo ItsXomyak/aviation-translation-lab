@@ -1,50 +1,54 @@
 # Acceptance results
 
-Checked on 2026-11-24 against ТЗ v1.0, section 7. Build `0.1-demo`, Demo dataset, Chrome (macOS), local server
-`python3 -m http.server -d dist 8765` unless noted otherwise.
+Checked on 2026-11-24 against ТЗ v1.0, section 7. Corpus version `0.1-draft` (imported from the author's workbook),
+Chrome on macOS, local server `python3 -m http.server -d dist 8765` unless noted otherwise.
 
 ## Automated tests
 
 ```
-python3 tools/test_build.py   → Ran 24 tests … OK
-python3 tools/test_data.py    → Ran 2 tests … OK
-node --test tools/lib.test.js → tests 14, pass 14, fail 0
+python3 tools/test_build.py   → Ran 26 tests … OK
+python3 tools/test_data.py    → Ran 5 tests … OK
+node --test tools/lib.test.js → tests 16, pass 16, fail 0
 ```
+
+`tools/lib.test.js` also builds the real corpus and checks that the Dashboard reproduces the author's statistics sheet
+(dataset = research): N = 22 annotated units; D01 10, D02 5, D03 5, D04 7, D05 8, D06 10;
+ST01 13, ST02 2, ST03 4, ST04 4, ST05 6, ST07 2, ST08 7; 45.5% for D01; 20 sources and 54 terms in the corpus.
 
 ## ТЗ 7.1
 
 | Check | Expected (ТЗ) | How verified | Result |
 |---|---|---|---|
-| Search and navigation | «ұшу-қону» opens Runway | Typed `ұшу-қону` in Dictionary; `lib.test.js` "search: Kazakh fragment…" | Pass: 1 term found, Runway card opened automatically; KK form shows *Pending validation* |
-| | Related example opens from the card | Clicked `U-001 — Landing clearance` under Related comparisons | Pass: `#/compare/U-001` opened |
-| | Empty state for a nonexistent query | `lib.test.js` (`nonexistent` → 0 results); UI message `No terms match "…"` | Pass |
-| Comparison | Three language columns, source and link type | `#/compare/U-001` | Pass: EN (Original) / RU / KK, source under each fragment, badge *Confirmed translation*, `Direction: EN → RU, KK` with basis |
-| | Undetermined direction when the original is unknown | `#/compare/U-002` (parallel version); `lib.test.js` "direction…" | Pass: `Direction not established`; Assessment shows `Original not established` |
-| | Selecting a highlight opens the explanation | Click and keyboard (Tab → Enter) on `ВПП[A2]` and `разрешаю[A1]` | Pass: panel with difficulty, strategy, explanation, supporting source; `aria-expanded=true` |
-| | Missing fragment / doubtful alignment / sentence split | `U-003`, `U-004` | Pass: KK `Not available`; *In review* badge; RU sentences numbered 1 and 2 |
-| Statistics | 2 confirmed units, one with *modality* → 1 of 2 and 50%; third demo unit excluded | `lib.test.js` "modality: 1 of 2 approved units (50%), illustrative unit excluded" | Pass |
-| | Filters update counters, charts and table together | Dashboard: link type = Comparable texts; pair EN–KK + genre Operations manual | Pass: `3 / 1 / 1` counters; empty selection shows `No records match the selected filters.`; Reset restores 14 rows |
-| | CSV matches the filtered table | Topic = Clearances: compared table annotation IDs with downloaded CSV | Pass: identical 8 rows (AN-001…AN-012), file `DEMO_dashboard.csv` with dataset and corpus version columns |
-| Rubric | 2, 1, 2, 2 → 7/8 | Assessment `U-001`, target RU | Pass: `Total: 7/8` |
-| | Missing score → no total | Same form with 3 of 4 scores; Save attempt | Pass: `Status: Incomplete — 1 of 4 criteria not scored`; Save refused with `Score all four criteria before saving.` |
-| | Export contains scores and comments | Exported session CSV | Pass: `DEMO_assessments.csv` with unit, `en→ru`, corpus version `0.1-demo`, rubric `R1.0`, scores, justification text, total 7 |
+| Search and navigation | «ұшу-қону» opens Runway | Typed `ұшу-қону` in Dictionary; `lib.test.js` search test | Pass: 1 term found, Runway (T001) card opened automatically; KK form *Pending validation*, EN/RU *Source referenced* with ICAO sources |
+| | Related example opens from the card | Related comparisons of T001: U001, U015, U020 | Pass |
+| | Empty state for a nonexistent query | `lib.test.js`; UI message `No terms match "…"` | Pass |
+| Comparison | Three language columns, source and link type | `#/compare/U001` | Pass: EN (Reference) / RU / KK with source and locator under each fragment; strip shows *Comparable texts* |
+| | Undetermined direction when the original is unknown | `#/compare/U019` (parallel version, Law No. 339-IV) | Pass: dashed sign *Direction not established*; the basis note is shown |
+| | Selecting a highlight opens the explanation | Click and keyboard (Tab → Enter) on highlights in U001 | Pass: panel with difficulty, strategy, explanation, fragment source, check status |
+| | Doubtful alignment marked | U003, U011–U014, U019, U025, U026 | Pass: *In review* badge |
+| Statistics | 2 confirmed units, one with *modality* → 1 of 2 and 50%; the demo unit excluded | `lib.test.js` "modality: 1 of 2 research units (50%), demo unit excluded" | Pass |
+| | Filters update counters, charts and table together | `lib.test.js` filter test; Dashboard filters in the browser | Pass |
+| | CSV matches the filtered table | `lib.test.js` CSV test (same row builder for table and CSV) | Pass |
+| | Message for an empty selection | Pair EN–KK + incompatible genre | Pass: `No records match the selected filters.` |
+| Rubric | 2, 1, 2, 2 → 7/8 | Assessment U003 (training example), EN → RU — the example from the corpus description | Pass: `Total 7/8` |
+| | Missing score → no total | Same form with 3 of 4 scores | Pass: status *Incomplete*, Save refused with `Score all four criteria before saving.` |
+| | Export contains scores and comments | `lib.test.js` export test; session export in the browser | Pass: unit, pair, corpus and rubric version, scores, justifications, total |
 | Corpus update | Correct new record appears without UI changes | `test_build.py` "new_approved_record_appears_without_ui_changes" | Pass |
-| | Wrong file rejected with the reason; previous data available | Changed two `link_type` values to `confirmed` and ran `tools/build.py`; `test_build.py` "error_keeps_previous_build" | Pass: `units.csv:5` and `units.csv:7: unknown link_type value 'confirmed' …`, exit 1, `dist/data.js` unchanged |
-| Defence readiness | Works locally without network | Headless Chrome rendered `file://…/dist/index.html#/method`; no external URLs in `dist/` (`grep`) | Pass |
-| | Readable on a projector | Base font 18 px, navy/gold/light palette, text labels on every colour cue | Pass (visual check) |
-| | No horizontal page scroll at 375 px | Every module loaded in a 375 px frame; `scrollWidth == clientWidth` | Pass: 375 = 375 on Home, Dictionary, Compare (U-001, U-004), Dashboard, Assessment, Methodology; wide tables scroll inside their own container |
+| | Wrong file rejected with the reason; previous data available | `test_build.py` "error_keeps_previous_build"; CLI run with an unknown `link_type` | Pass: `units.csv:<line>: unknown link_type value …`, exit 1, previous `dist/` unchanged |
+| Defence readiness | Works locally without network | Headless Chrome rendered `file://…/dist/index.html`; no external URLs loaded by `dist/` | Pass |
+| | Readable on a projector | 18 px base font, navy/gold/light palette, every colour cue paired with a text label | Pass (visual check) |
+| | No horizontal page scroll at 375 px | 15 routes × 2 modes in a 375 px frame: `scrollWidth == clientWidth` | Pass: 0 px overflow everywhere; wide tables scroll inside their own region |
 | | Works from the published link | — | Pending: deployment to the VPS (`<ip>.sslip.io`) |
 
 ## Defence scenario (ТЗ 7.2)
 
-Switch to Demo → Dictionary → `ұшу-қону` → Runway → `U-001` → annotation `[A1]` with source → Assessment RU 2, 1, 2, 2
-= 7/8 → export → Dashboard difficulty distribution → Methodology limitations. **Pass**, no console errors.
+Dictionary → `ұшу-қону` → Runway → U001 → highlight and source → Assessment U003 RU 2, 1, 2, 2 = 7/8 → export →
+Dashboard difficulty distribution (N = 22) → Methodology limitations. **Pass**, no console errors.
 
 ## Other checks
 
 | Check | Result |
 |---|---|
-| Keyboard only | Pass: Tab reaches selects, highlight buttons, radios, Save/Export; Enter opens annotations |
-| Research mode with no approved records | Pass: *Corpus under development* with a *Switch to Demo dataset* button |
-| Demo marking | Pass: permanent gold banner on every screen; `DEMO_` file names and `dataset=demo` column in exports |
+| Keyboard only | Pass: Tab reaches the dataset switch, selects, highlight buttons, radio options, Save/Export; Enter opens annotations |
+| Demo marking | Pass: permanent gold banner in Demo mode; `DEMO_` file names and `dataset=demo` in exports |
 | Safari | Pending: manual check on a Mac with Safari |

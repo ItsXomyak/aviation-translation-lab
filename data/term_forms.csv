@@ -1,17 +1,163 @@
 term_id,lang,form,abbreviation,source_id,locator,check_status
-T-RUNWAY,en,runway,RWY,DEMO-EN-PHR,ex. 1,verified
-T-RUNWAY,ru,взлётно-посадочная полоса,ВПП,DEMO-RU-PHR,ex. 1,verified
-T-RUNWAY,kk,ұшу-қону жолағы,,DEMO-KK-PHR,ex. 1,pending
-T-ATC,en,air traffic control,ATC,DEMO-EN-PHR,ex. 2,verified
-T-ATC,ru,управление воздушным движением,УВД,DEMO-RU-PHR,ex. 2,verified
-T-ATC,kk,әуе қозғалысын басқару,,DEMO-KK-PHR,ex. 2,pending
-T-CLEARANCE,en,clearance,,DEMO-EN-REG,§ 1,verified
-T-CLEARANCE,ru,диспетчерское разрешение,,DEMO-RU-REG,§ 1,verified
-T-CLEARANCE,kk,диспетчерлік рұқсат,,DEMO-KK-REG,§ 1,pending
-T-HOLD-SHORT,en,hold short,,DEMO-EN-PHR,ex. 3,verified
-T-HOLD-SHORT,ru,ожидайте перед ВПП,,DEMO-RU-PHR,ex. 3,pending
-T-GO-AROUND,en,go around,,DEMO-EN-PHR,ex. 4,verified
-T-GO-AROUND,ru,уход на второй круг,,DEMO-RU-PHR,ex. 4,verified
-T-GO-AROUND,kk,екінші айналымға кету,,DEMO-KK-PHR,ex. 4,pending
-T-SQUAWK,en,squawk,,DEMO-EN-PHR,ex. 5,verified
-T-SQUAWK,ru,установите код ответчика,,DEMO-RU-PHR,ex. 5,pending
+T001,en,runway,RWY,S07,,source_referenced
+T001,ru,взлётно-посадочная полоса,ВПП,S13,,source_referenced
+T001,kk,ұшу-қону жолағы,ҰҚЖ,S19,,pending_validation
+T002,en,taxiway,TWY,S07,,source_referenced
+T002,ru,рулёжная дорожка,РД,S13,,source_referenced
+T002,kk,рульдеу жолы,РЖ,S19,,pending_validation
+T003,en,apron,,S07,,source_referenced
+T003,ru,перрон,,S13,,source_referenced
+T003,kk,перрон,,S19,,pending_validation
+T004,en,aerodrome,,S07,,source_referenced
+T004,ru,аэродром,,S13,,source_referenced
+T004,kk,әуеайлақ,,S15,,pending_validation
+T005,en,airport,,S09,,source_referenced
+T005,ru,аэропорт,,S15,,source_referenced
+T005,kk,әуежай,,S15,,pending_validation
+T006,en,runway-holding position / holding point,,S01,,source_referenced
+T006,ru,место ожидания у ВПП,,S12,,pending_validation
+T006,kk,ҰҚЖ алдындағы күту орны,,S19,,pending_validation
+T007,en,threshold,THR,S07,,source_referenced
+T007,ru,порог ВПП,,S13,,source_referenced
+T007,kk,ҰҚЖ табалдырығы,,S19,,pending_validation
+T008,en,air traffic control,ATC,S01,,source_referenced
+T008,ru,управление воздушным движением,УВД,S12,,source_referenced
+T008,kk,әуе қозғалысын басқару,ӘҚБ,S15,,pending_validation
+T009,en,air traffic services,ATS,S01,,source_referenced
+T009,ru,обслуживание воздушного движения,ОВД,S12,,source_referenced
+T009,kk,әуе қозғалысына қызмет көрсету,,S15,,pending_validation
+T010,en,ATC clearance,,S09,,source_referenced
+T010,ru,диспетчерское разрешение,,S12,,source_referenced
+T010,kk,диспетчерлік рұқсат,,S19,,pending_validation
+T011,en,clearance limit,,S09,,source_referenced
+T011,ru,граница действия разрешения,,S12,,pending_validation
+T011,kk,рұқсаттың қолданылу шегі,,S19,,pending_validation
+T012,en,conditional clearance,,S01,,source_referenced
+T012,ru,условное разрешение,,S12,,source_referenced
+T012,kk,шартты рұқсат,,S19,,pending_validation
+T013,en,cleared for take-off,,S01,,source_referenced
+T013,ru,взлёт разрешаю,,S14,,pending_validation
+T013,kk,ұшып көтерілуге рұқсат етемін,,S19,,illustrative
+T014,en,line up and wait,LUAW,S01,,source_referenced
+T014,ru,занимайте исполнительный старт и ждите,,S14,,pending_validation
+T014,kk,"атқарушы стартқа шығып, күтіңіз",,S19,,illustrative
+T015,en,hold short of runway,,S11,,source_referenced
+T015,ru,ждите перед ВПП,,S14,,pending_validation
+T015,kk,ҰҚЖ алдында күтіңіз,,S19,,illustrative
+T016,en,go around,,S01,,source_referenced
+T016,ru,уходите на второй круг,,S14,,pending_validation
+T016,kk,екінші айналымға кетіңіз,,S19,,illustrative
+T017,en,missed approach,,S09,,source_referenced
+T017,ru,уход на второй круг (прерванный заход на посадку),,S12,,pending_validation
+T017,kk,екінші айналымға кету,,S19,,pending_validation
+T018,en,read back,,S02,,source_referenced
+T018,ru,повторите (подтверждение считыванием),,S14,,pending_validation
+T018,kk,қайталап беріңіз,,S19,,illustrative
+T019,en,say again,,S02,,source_referenced
+T019,ru,повторите,,S14,,pending_validation
+T019,kk,қайталаңыз,,S19,,illustrative
+T020,en,roger,,S02,,source_referenced
+T020,ru,понял,,S14,,pending_validation
+T020,kk,қабылдадым,,S19,,illustrative
+T021,en,wilco,,S02,,source_referenced
+T021,ru,выполняю,,S14,,pending_validation
+T021,kk,орындаймын,,S19,,illustrative
+T022,en,affirm (ICAO) / affirmative (FAA),,S02;S09,,source_referenced
+T022,ru,подтверждаю / да,,S14,,pending_validation
+T022,kk,растаймын / иә,,S19,,illustrative
+T023,en,negative,,S02,,source_referenced
+T023,ru,нет / отрицательно,,S14,,pending_validation
+T023,kk,жоқ,,S19,,illustrative
+T024,en,standby,,S02,,source_referenced
+T024,ru,ждите,,S14,,pending_validation
+T024,kk,күтіңіз,,S19,,illustrative
+T025,en,MAYDAY,,S03,,source_referenced
+T025,ru,MAYDAY (бедствие),,S14,,pending_validation
+T025,kk,MAYDAY (апат),,S19,,illustrative
+T026,en,PAN PAN,,S03,,source_referenced
+T026,ru,PAN PAN (срочность),,S14,,pending_validation
+T026,kk,PAN PAN (шұғылдық),,S19,,illustrative
+T027,en,squawk,SQK,S09,,source_referenced
+T027,ru,установите код ответчика,,S14,,pending_validation
+T027,kk,жауап бергіш кодын орнатыңыз,,S19,,illustrative
+T028,en,transponder,XPDR,S08,,source_referenced
+T028,ru,ответчик (приёмоответчик ВРЛ),,S12,,source_referenced
+T028,kk,жауап бергіш,,S19,,pending_validation
+T029,en,flight level,FL,S01,,source_referenced
+T029,ru,эшелон полёта,,S12,,source_referenced
+T029,kk,ұшу эшелоны,,S19,,pending_validation
+T030,en,altitude / height,,S01,,source_referenced
+T030,ru,абсолютная высота / относительная высота,,S12,,source_referenced
+T030,kk,абсолюттік биіктік / салыстырмалы биіктік,,S19,,pending_validation
+T031,en,altimeter setting,,S09,,source_referenced
+T031,ru,установка (давления на) высотомере,,S12,,source_referenced
+T031,kk,биіктік өлшегішті орнату,,S19,,pending_validation
+T032,en,transition altitude,TA,S01,,source_referenced
+T032,ru,высота перехода,,S12,,source_referenced
+T032,kk,ауысу биіктігі,,S19,,pending_validation
+T033,en,automatic terminal information service,ATIS,S09,,source_referenced
+T033,ru,автоматическая передача информации в районе аэродрома,ATIS,S12,,source_referenced
+T033,kk,әуеайлақ ауданындағы ақпаратты автоматты беру,ATIS,S19,,pending_validation
+T034,en,NOTAM,NOTAM,S08;S09,,source_referenced
+T034,ru,NOTAM (извещение NOTAM),,S12,,source_referenced
+T034,kk,NOTAM,,S19,,pending_validation
+T035,en,aircraft,ACFT,S06,,source_referenced
+T035,ru,воздушное судно,ВС,S15,,source_referenced
+T035,kk,әуе кемесі,ӘК,S15,,pending_validation
+T036,en,pilot-in-command,PIC,S04,,source_referenced
+T036,ru,командир воздушного судна,КВС,S15,,source_referenced
+T036,kk,әуе кемесінің командирі,,S15,,pending_validation
+T037,en,flight crew member,,S04,,source_referenced
+T037,ru,член лётного экипажа,,S15,,source_referenced
+T037,kk,ұшу экипажының мүшесі,,S19,,pending_validation
+T038,en,cabin crew member,,S20,,illustrative
+T038,ru,бортпроводник,,S20,,illustrative
+T038,kk,бортсерік,,S19,,pending_validation
+T039,en,aircraft operator,,S06,,source_referenced
+T039,ru,эксплуатант,,S15,,source_referenced
+T039,kk,пайдаланушы,,S15,,pending_validation
+T040,en,safety (flight safety),,S06,,source_referenced
+T040,ru,безопасность полётов,,S15,,source_referenced
+T040,kk,ұшу қауіпсіздігі,,S15,,pending_validation
+T041,en,aviation security,AVSEC,S20,,illustrative
+T041,ru,авиационная безопасность,АБ,S15,,source_referenced
+T041,kk,авиациялық қауіпсіздік,,S15,,pending_validation
+T042,en,accident,,S06,,source_referenced
+T042,ru,авиационное происшествие,,S15,,source_referenced
+T042,kk,авиациялық оқиға,,S15,,pending_validation
+T043,en,incident,,S06,,source_referenced
+T043,ru,инцидент,,S15,,source_referenced
+T043,kk,инцидент,,S15,,pending_validation
+T044,en,serious incident,,S06,,source_referenced
+T044,ru,серьёзный инцидент,,S15,,source_referenced
+T044,kk,елеулі инцидент,,S19,,pending_validation
+T045,en,runway incursion,,S01,,source_referenced
+T045,ru,несанкционированное занятие ВПП,,S12,,pending_validation
+T045,kk,ҰҚЖ-ға рұқсатсыз шығу,,S19,,pending_validation
+T046,en,taxi,,S01,,source_referenced
+T046,ru,рулить / руление,,S14,,pending_validation
+T046,kk,рульдеу,,S19,,pending_validation
+T047,en,fasten seat belt sign,,S20,,illustrative
+T047,ru,табло «Пристегните ремни»,,S20,,illustrative
+T047,kk,«Белдіктерді тағыңыз» таблосы,,S19,,illustrative
+T048,en,boarding pass,,S20,,illustrative
+T048,ru,посадочный талон,,S20,,illustrative
+T048,kk,отырғызу талоны,,S19,,pending_validation
+T049,en,language proficiency requirements,LPR,S04;S05,,source_referenced
+T049,ru,требования к уровню владения языком,,S12,,pending_validation
+T049,kk,тілді меңгеру деңгейіне қойылатын талаптар,,S19,,pending_validation
+T050,en,standard phraseology,,S03,,source_referenced
+T050,ru,стандартная фразеология,,S14,,source_referenced
+T050,kk,стандартты фразеология,,S14,,pending_validation
+T051,en,plain language,,S03,,source_referenced
+T051,ru,открытый текст (обычный язык),,S12,,pending_validation
+T051,kk,қарапайым тіл / ашық мәтін,,S19,,pending_validation
+T052,en,wind shear,WS,S08,,source_referenced
+T052,ru,сдвиг ветра,,S12,,source_referenced
+T052,kk,жел ығысуы,,S19,,pending_validation
+T053,en,approach,APP,S01,,source_referenced
+T053,ru,заход на посадку / подход (орган),,S12,,source_referenced
+T053,kk,қонуға кіру / жақындау,,S19,,pending_validation
+T054,en,final (approach),FNL,S01,,source_referenced
+T054,ru,конечный этап захода / «на прямой»,,S14,,pending_validation
+T054,kk,қонудың соңғы бөлігі,,S19,,illustrative

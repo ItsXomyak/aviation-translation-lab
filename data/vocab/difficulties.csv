@@ -1,7 +1,7 @@
-id,label
-term_equivalence,Terminological equivalence
-abbreviation,Abbreviations
-syntax,Syntax
-modality,Modality
-pragmatic_function,Pragmatic function
-term_consistency,Terminological consistency
+id,code,label,label_ru,label_kk,description
+D01,term_equivalence,Terminological equivalence,Терминологическая эквивалентность,Терминологиялық баламалылық,Нет однозначного соответствия понятия/термина в ПЯ; асимметрия понятийных систем.
+D02,abbreviation,Abbreviations,Аббревиатуры,Қысқартулар,"Передача акронимов ИКАО/национальных сокращений; сохранение, расшифровка или замена."
+D03,syntax,Syntax,Синтаксис,Синтаксис,"Различия порядка слов, эллипсиса, телеграфного стиля, условных конструкций."
+D04,modality,Modality,Модальность,Модальділік,"Передача обязательности (shall/should/may), повелительного наклонения, перформативов."
+D05,pragmatic_function,Pragmatic function,Прагматическая функция,Прагматикалық функция,"Сохранение речевого акта (разрешение, указание, запрос, подтверждение, бедствие)."
+D06,term_consistency,Terminological consistency,Терминологическая последовательность,Терминологиялық бірізділік,Колебание вариантов одного термина в тексте/между документами; омонимия фраз.

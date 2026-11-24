@@ -1,7 +1,27 @@
-unit_id,title,topic_id,term_ids,link_type,source_lang,direction_basis,alignment_status,training,status,note
-U-001,Landing clearance,clearances,T-RUNWAY;T-CLEARANCE,confirmed_translation,en,Demo: constructed English original with Russian and Kazakh renderings.,aligned,no,illustrative,
-U-002,Frequency change instruction,atc,T-ATC,parallel_unknown_direction,,,aligned,no,illustrative,Parallel versions; which text is the original is not documented.
-U-003,Holding short of the runway,clearances,T-HOLD-SHORT;T-RUNWAY,confirmed_translation,en,Demo: constructed English original with a Russian rendering.,aligned,no,illustrative,Kazakh version is not available.
-U-004,Go-around instruction,aerodrome,T-GO-AROUND,confirmed_translation,en,Demo: constructed English original.,in_review,no,illustrative,Russian splits one English sentence into two; alignment is under review.
-U-005,Read-back requirement,clearances,T-CLEARANCE,comparable,en,,aligned,yes,illustrative,Comparable rule texts; marked as a training example for scoring practice.
-U-006,Transponder code instruction,radiotelephony,T-SQUAWK,confirmed_translation,en,Demo: constructed English original.,aligned,no,illustrative,
+unit_id,title,genre_id,topic_id,term_ids,link_type,source_lang,direction_basis,alignment_status,training,dataset,note
+U001,,atc_radiotelephony,take_off,T001;T013,comparable_text,en,,aligned,no,research,Позывной ASTRA 451 вымышленный. Модель ICAO: (callsign) RUNWAY (number) CLEARED FOR TAKE-OFF.
+U002,,atc_radiotelephony,take_off,T014,comparable_text,en,,aligned,no,research,Реалия «исполнительный старт».
+U003,,atc_radiotelephony,conditional_clearance,T012,comparable_text,en,,in_review,yes,research,"В EN behind повторяется дважды (требование ICAO); в RU/KK второе behind заменено местоимением/опущено — компрессия, риск утраты избыточности."
+U004,,atc_radiotelephony,taxi,T002;T006;T015;T046,comparable_text,en,,aligned,no,research,KK — агглютинативный порядок (маршрут перед целью): синтаксическая перестройка.
+U005,,atc_radiotelephony,go_around,T016;T019,comparable_text,en,,aligned,no,research,«I say again» → «повторяю» (1 л.) vs «say again» → «повторите».
+U006,,atc_radiotelephony,transponder,T027;T028,comparable_text,en,,aligned,no,research,RU — компрессия (эллипсис глагола); KK — экспликация действия.
+U007,,atc_radiotelephony,level_change,T029,comparable_text,en,,aligned,no,research,"Числа читаются по цифрам в EN (one eight zero), в RU — «сто восемьдесят»."
+U008,,atc_radiotelephony,level_change,T030;T031,comparable_text,en,,aligned,no,research,RU добавляет «давление» — экспликация.
+U009,,pilot_readback,readback,T018;T029,comparable_text,en,,aligned,no,research,"Императив диспетчера → эллипсис (EN) / 1 л. наст. вр. (RU, KK) в считывании."
+U010,,atc_radiotelephony,readback,T019,comparable_text,en,,aligned,no,research,Ср. U011: в RU одна форма для двух EN-процедур.
+U011,,atc_radiotelephony,readback,T018,comparable_text,en,,in_review,no,research,Экспликация объекта необходима для снятия омонимии с say again.
+U012,,distress_message,emergency,T025;T053,comparable_text,en,,in_review,no,research,"Позывной органа Approach: в RU практике «Подход», в KK — не закреплён (Pending)."
+U013,,urgency_message,emergency,T026,comparable_text,en,,in_review,no,research,request priority → «прошу вне очереди»: прагматическая адаптация.
+U014,,atc_radiotelephony,departure,T013,comparable_text,en,,in_review,no,research,ICAO резервирует слово take-off только для разрешения на взлёт; в RU «к взлёту готов» допустимо — асимметрия норм (см. кейс Тенерифе).
+U015,,regulatory_definition,aerodrome,T001;T004,confirmed_translation,en,Официальный перевод ИКАО (RU) с английского оригинала,aligned,no,research,RU — официальный перевод ICAO; KK — иллюстративный.
+U016,,regulatory_definition,aerodrome,T002,confirmed_translation,en,Официальный перевод ИКАО (RU),aligned,no,research,Сверить дословно с текущей редакцией.
+U017,,regulatory_definition,aerodrome,T003,confirmed_translation,en,Официальный перевод ИКАО (RU),aligned,no,research,«посадка пассажиров» ≠ «посадка ВС» — омонимия в RU.
+U018,,regulatory_definition,safety,T042;T043,confirmed_translation,en,Официальный перевод ИКАО (RU),aligned,no,research,EN occurrence vs accident — RU «событие» vs «авиационное происшествие»; KK «оқиға» покрывает оба → терминологическая коллизия.
+U019,,regulatory_definition,safety,T041,parallel_unknown_direction,ru,Закон РК аутентичен на RU и KK; EN — иллюстративный,in_review,no,research,Направление RU↔KK не установлено (аутентичные тексты).
+U020,,notam,ais,T001;T034,illustrative_translation,en,,aligned,no,research,Расшифровка аббревиатур (декомпрессия) — описательный перевод.
+U021,,metar,meteo,T031,illustrative_translation,en,,aligned,no,demo,Сводка смоделирована (не реальное наблюдение). Демонстрация декодирования кода.
+U022,,atis,ais,T033,illustrative_translation,en,,aligned,no,demo,Смоделированная передача ATIS.
+U023,,cabin_announcement,cabin,T036;T047,illustrative_translation,en,,aligned,no,demo,captain → «командир воздушного судна» (официальная регистровая норма); KK — вежливая форма мн.ч.
+U024,,manual_instruction,safety,T036;T040,illustrative_translation,en,,aligned,no,demo,shall not … unless → двойное отрицание; передача деонтической модальности.
+U025,,regulatory_text,language_policy,T050;T051,comparable_text,en,,in_review,no,research,shall → «должна»/«тиіс»: деонтическая модальность ICAO SARPs.
+U026,,regulatory_text,language_policy,T049,comparable_text,en,,in_review,no,research,Длинное предложение-норма: синтаксическая перестройка в KK (глагол в конце).

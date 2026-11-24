@@ -1,5 +1,12 @@
 id,label
-regulation,Regulation / standard
-phraseology,Radiotelephony phraseology
-manual,Operations manual
-training,Training material
+atc_radiotelephony,ATC radiotelephony
+pilot_readback,pilot readback
+distress_message,distress message
+urgency_message,urgency message
+regulatory_definition,regulatory definition
+notam,NOTAM
+metar,METAR
+atis,ATIS
+cabin_announcement,cabin announcement
+manual_instruction,manual instruction
+regulatory_text,regulatory text

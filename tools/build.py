@@ -17,32 +17,32 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LANGS = ("en", "ru", "kk")
-LINK_TYPES = ("confirmed_translation", "parallel_unknown_direction", "comparable")
+LINK_TYPES = ("confirmed_translation", "parallel_unknown_direction", "comparable_text", "illustrative_translation")
 ALIGNMENT = ("aligned", "in_review")
-STATUSES = ("approved", "illustrative", "draft")
-CHECKS = ("verified", "pending")
+DATASETS = ("research", "demo", "draft")
+CHECKS = ("verified", "source_referenced", "pending_validation", "illustrative")
 TRAINING = ("yes", "no")
 
 # table: (all columns, required columns)
 SCHEMA = {
     "vocab/topics": ("id label", "id label"),
-    "vocab/difficulties": ("id label", "id label"),
-    "vocab/strategies": ("id label", "id label"),
+    "vocab/difficulties": ("id code label label_ru label_kk description", "id label"),
+    "vocab/strategies": ("id code label label_ru label_kk", "id label"),
     "vocab/genres": ("id label", "id label"),
-    "sources": ("source_id title organization lang genre_id audience url accessed published edition locator",
-                "source_id title organization lang genre_id audience url accessed"),
-    "terms": ("term_id topic_id definition definition_source_id definition_locator context difficulty_ids "
-              "difficulty_note status",
-              "term_id topic_id definition definition_source_id status"),
+    "sources": ("source_id title organization lang genre audience url accessed edition note",
+                "source_id title organization lang genre accessed"),
+    "terms": ("term_id topic_id definition definition_lang definition_source_id context difficulty_ids "
+              "difficulty_note dataset",
+              "term_id topic_id definition dataset"),
     "term_forms": ("term_id lang form abbreviation source_id locator check_status",
                    "term_id lang form source_id check_status"),
-    "units": ("unit_id title topic_id term_ids link_type source_lang direction_basis alignment_status training "
-              "status note",
-              "unit_id title topic_id link_type alignment_status status"),
+    "units": ("unit_id title genre_id topic_id term_ids link_type source_lang direction_basis alignment_status "
+              "training dataset note",
+              "unit_id genre_id topic_id link_type alignment_status dataset"),
     "fragments": ("unit_id lang seq text source_id locator", "unit_id lang seq text source_id"),
     "annotations": ("annotation_id unit_id lang seq span_text occurrence compared_with difficulty_ids strategy_ids "
                     "explanation evidence_source_id evidence_locator check_status",
-                    "annotation_id unit_id lang span_text explanation evidence_source_id check_status"),
+                    "annotation_id unit_id lang span_text explanation check_status"),
     "versions": ("version date changes", "version date changes"),
 }
 
@@ -52,8 +52,8 @@ class Errors(list):
         self.append(f"{table}.csv:{line}: {msg}" if line else f"{table}.csv: {msg}")
 
 
-def ids(value):
-    return [x.strip() for x in value.split(";") if x.strip()]
+def ids(value, sep=";"):
+    return [x.strip() for x in value.split(sep) if x.strip()]
 
 
 def u16(text):
@@ -71,7 +71,7 @@ def load(data_dir, err):
             continue
         with path.open(encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
-            missing = [c for c in cols.split() if c not in (reader.fieldnames or [])]
+            missing = [c for c in required.split() if c not in (reader.fieldnames or [])]
             if missing:
                 err.add(name, 1, "missing column(s): " + ", ".join(missing))
                 continue
@@ -98,8 +98,8 @@ def unique(err, table, rows, key):
     return seen
 
 
-def allowed(err, table, row, col, values, many=False):
-    for v in ids(row[col]) if many else ([row[col]] if row[col] else []):
+def allowed(err, table, row, col, values, sep=None):
+    for v in ids(row[col], sep) if sep else ([row[col]] if row[col] else []):
         if v not in values:
             err.add(table, row["_line"], f"unknown {col} value '{v}' (allowed: {', '.join(values)})")
 
@@ -145,15 +145,15 @@ def validate(t, err):
 
     sources = unique(err, "sources", t["sources"], lambda r: r["source_id"])
     for r in t["sources"]:
-        allowed(err, "sources", r, "lang", LANGS)
-        allowed(err, "sources", r, "genre_id", vocab["genres"])
+        allowed(err, "sources", r, "lang", LANGS, sep="/")  # a bilingual document is written "ru/kk"
         iso_date(err, "sources", r, "accessed")
 
     terms = unique(err, "terms", t["terms"], lambda r: r["term_id"])
     for r in t["terms"]:
         allowed(err, "terms", r, "topic_id", vocab["topics"])
-        allowed(err, "terms", r, "difficulty_ids", vocab["difficulties"], many=True)
-        allowed(err, "terms", r, "status", STATUSES)
+        allowed(err, "terms", r, "definition_lang", LANGS)
+        allowed(err, "terms", r, "difficulty_ids", vocab["difficulties"], sep=";")
+        allowed(err, "terms", r, "dataset", DATASETS)
         refs(err, "terms", r, "definition_source_id", "sources", sources)
 
     unique(err, "term_forms", t["term_forms"], lambda r: f"{r['term_id']} / {r['lang']} / {r['form']}")
@@ -165,19 +165,22 @@ def validate(t, err):
 
     units = unique(err, "units", t["units"], lambda r: r["unit_id"])
     for r in t["units"]:
-        for col, values in (("topic_id", vocab["topics"]), ("link_type", LINK_TYPES), ("source_lang", LANGS),
-                            ("alignment_status", ALIGNMENT), ("training", TRAINING), ("status", STATUSES)):
+        for col, values in (("genre_id", vocab["genres"]), ("topic_id", vocab["topics"]), ("link_type", LINK_TYPES),
+                            ("source_lang", LANGS), ("alignment_status", ALIGNMENT), ("training", TRAINING),
+                            ("dataset", DATASETS)):
             allowed(err, "units", r, col, values)
         refs(err, "units", r, "term_ids", "terms", terms)
         if r["link_type"] == "confirmed_translation" and not (r["source_lang"] and r["direction_basis"]):
             err.add("units", r["_line"], "confirmed_translation requires source_lang and direction_basis")
+        if r["link_type"] == "illustrative_translation" and not r["source_lang"]:
+            err.add("units", r["_line"], "illustrative_translation requires source_lang")
         if r["training"] == "yes" and not r["source_lang"]:
             err.add("units", r["_line"], "training example requires source_lang")
-        if r["status"] == "approved":
+        if r["dataset"] == "research":
             for tid in ids(r["term_ids"]):
-                if tid in terms and terms[tid]["status"] != "approved":
+                if tid in terms and terms[tid]["dataset"] != "research":
                     err.add("units", r["_line"],
-                            f"approved unit links to term '{tid}' with status '{terms[tid]['status']}'")
+                            f"research unit links to term '{tid}' with dataset '{terms[tid]['dataset']}'")
 
     for r in t["fragments"]:
         refs(err, "fragments", r, "unit_id", "units", units)
@@ -199,8 +202,8 @@ def validate(t, err):
         refs(err, tb, r, "unit_id", "units", units)
         allowed(err, tb, r, "lang", LANGS)
         allowed(err, tb, r, "compared_with", LANGS)
-        allowed(err, tb, r, "difficulty_ids", vocab["difficulties"], many=True)
-        allowed(err, tb, r, "strategy_ids", vocab["strategies"], many=True)
+        allowed(err, tb, r, "difficulty_ids", vocab["difficulties"], sep=";")
+        allowed(err, tb, r, "strategy_ids", vocab["strategies"], sep=";")
         allowed(err, tb, r, "check_status", CHECKS)
         refs(err, tb, r, "evidence_source_id", "sources", sources)
         if not (r["difficulty_ids"] or r["strategy_ids"]):
@@ -240,12 +243,12 @@ def assemble(t, vocab, methodology):
     terms = [
         {**clean(r), "difficulty_ids": ids(r["difficulty_ids"]),
          "forms": [clean(f, "term_id") for f in t["term_forms"] if f["term_id"] == r["term_id"]]}
-        for r in t["terms"] if r["status"] != "draft"
+        for r in t["terms"] if r["dataset"] != "draft"
     ]
     published = {x["term_id"] for x in terms}
     units = []
     for r in t["units"]:
-        if r["status"] == "draft":
+        if r["dataset"] == "draft":
             continue
         uid = r["unit_id"]
         anns = [a for a in t["annotations"] if a["unit_id"] == uid]

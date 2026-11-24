@@ -1,15 +1,45 @@
 annotation_id,unit_id,lang,seq,span_text,occurrence,compared_with,difficulty_ids,strategy_ids,explanation,evidence_source_id,evidence_locator,check_status
-AN-001,U-001,ru,1,разрешаю,1,en,pragmatic_function;syntax,syntactic_restructuring,"English 'cleared to land' (passive participle) becomes the first-person performative 'разрешаю', making the controller's authority explicit.",DEMO-RU-PHR,ex. 1,verified
-AN-002,U-001,ru,1,ВПП,1,en,abbreviation,established_equivalent,'Runway' is rendered by the established Russian abbreviation ВПП rather than by a borrowing.,DEMO-RU-PHR,ex. 1,verified
-AN-003,U-001,kk,1,ұшу-қону жолағына,1,en,term_equivalence,descriptive,Kazakh uses the descriptive compound 'ұшу-қону жолағы' (take-off and landing strip) with a case ending.,DEMO-KK-PHR,ex. 1,pending
-AN-004,U-002,ru,1,Работайте с,1,en,pragmatic_function,established_equivalent,"'Contact' is rendered by the conventional Russian radiotelephony formula 'работайте с', not by a literal 'свяжитесь'.",DEMO-RU-PHR,ex. 2,verified
-AN-005,U-002,kk,1,байланысыңыз,1,en,pragmatic_function,calque,Kazakh 'байланысыңыз' (contact) follows the English verb literally.,DEMO-KK-PHR,ex. 2,pending
-AN-006,U-003,ru,1,Ожидайте,1,en,modality,syntactic_restructuring,"The English imperative 'hold short' is rendered as 'ожидайте' (wait), shifting the focus from position to action.",DEMO-RU-PHR,ex. 3,verified
-AN-007,U-003,ru,1,ВПП,1,en,abbreviation,compression,'Runway' is compressed to the abbreviation ВПП.,DEMO-RU-PHR,ex. 3,verified
-AN-008,U-004,ru,2,Повторяю,1,en,syntax,syntactic_restructuring,The repeated English instruction is split into two Russian sentences.,DEMO-RU-PHR,ex. 4,verified
-AN-009,U-004,kk,1,екінші айналымға кетіңіз,1,en,term_consistency,established_equivalent,"The term is repeated in identical form, preserving terminological consistency.",DEMO-KK-PHR,ex. 4,pending
-AN-010,U-005,ru,1,обязан,1,en,modality,established_equivalent,"Deontic 'shall' is rendered by 'обязан', preserving the requirement.",DEMO-RU-REG,§ 2,verified
-AN-011,U-005,kk,1,міндетті,1,en,modality,established_equivalent,"Deontic 'shall' is rendered by 'міндетті', preserving the requirement.",DEMO-KK-REG,§ 2,pending
-AN-012,U-005,ru,1,диспетчерское разрешение,1,en,term_equivalence;abbreviation,explicitation,The abbreviation 'ATC' in 'ATC clearance' is not reproduced; its meaning is carried by the adjective 'диспетчерское'.,DEMO-RU-REG,§ 2,verified
-AN-013,U-006,ru,1,Установите код ответчика,1,en,term_equivalence,descriptive,The jargon verb 'squawk' has no one-word Russian equivalent and is rendered descriptively.,DEMO-RU-PHR,ex. 5,verified
-AN-014,U-006,kk,1,Ответчик,1,en,term_equivalence,borrowing,Kazakh borrows 'ответчик' (transponder) from Russian.,DEMO-KK-PHR,ex. 5,pending
+A001,U001,ru,1,взлёт разрешаю,1,en,D04;D05,ST08,"EN пассивное причастие cleared + for → RU перформатив 1 л. «разрешаю». Речевой акт «разрешение» сохранён, грамматика перестроена.",,,pending_validation
+A002,U001,kk,1,ұшып көтерілуге рұқсат етемін,1,en,D04;D05,ST08;ST05,KK перформатив «рұқсат етемін» + экспликация действия «ұшып көтерілу».,,,pending_validation
+A003,U001,ru,1,ВПП 05 правая,1,en,D02,ST01;ST05,RWY → ВПП (установленный эквивалент); R → «правая» (расшифровка буквенного индекса).,,,pending_validation
+A004,U002,ru,1,занимайте исполнительный старт,1,en,D01,ST01,line up — национальная реалия «исполнительный старт» без терминологического аналога в EN.,,,pending_validation
+A005,U002,kk,1,атқарушы стартқа шығып,1,en,D01,ST03,"Калька RU-термина «исполнительный старт», а не EN line up — посредничество русского языка.",,,pending_validation
+A006,U003,ru,1,после посадки Аэробуса 320 на прямой,1,en,D03;D05,ST08;ST07,"Условие вынесено в начало (как в ICAO), но повтор behind опущен — компрессия снижает избыточность, важную для безопасности.",,,pending_validation
+A007,U003,kk,1,соңғы түзуде қонып жатқан Airbus 320-дан кейін,1,en,D03,ST08,Причастный оборот в препозиции — агглютинативная перестройка.,,,pending_validation
+A008,U004,ru,1,рулите на предварительный старт C,1,en,D01;D06,ST01,holding point → «предварительный старт» (национальная практика) vs ICAO-RU «место ожидания».,,,pending_validation
+A009,U004,kk,1,B рульдеу жолымен 23 ҰҚЖ-ның C күту орнына рульдеңіз,1,en,D03,ST08,Порядок KK: маршрут → цель → глагол; EN: глагол → цель → маршрут.,,,pending_validation
+A010,U004,ru,1,ждите перед ВПП 23,1,en,D03;D06,ST08,hold short of → «ждите перед»; совпадение «ждите» со standby/wait.,,,pending_validation
+A011,U005,ru,1,уходите на второй круг,1,en,D01,ST01,Фразеологизированный эквивалент go around.,,,pending_validation
+A012,U005,ru,1,повторяю,1,en,D06;D05,ST01,I say again → «повторяю» (1 л.); омонимическое поле с «повторите».,,,pending_validation
+A013,U005,kk,1,екінші айналымға кетіңіз,1,en,D01,ST03,Калька RU «уходите на второй круг».,,,pending_validation
+A014,U006,ru,1,ответчик 4521,1,en,D01;D04,ST07,Эллипсис глагола: squawk → «ответчик» + код. Императив выражен имплицитно.,,,pending_validation
+A015,U006,kk,1,жауап бергіш кодын 4521 орнатыңыз,1,en,D01;D04,ST04;ST05,Описательный перевод жаргонизма squawk с экспликацией императива.,,,pending_validation
+A016,U007,ru,1,набирайте эшелон 180,1,en,D04,ST01,Императив несоверш. вида — норма RU фразеологии.,,,pending_validation
+A017,U007,kk,1,180 ұшу эшелонына дейін биіктік алыңыз,1,en,D03;D04,ST08;ST05,Добавлено «биіктік алу» (набор высоты) — экспликация.,,,pending_validation
+A018,U008,ru,1,давление QNH 1013,1,en,D02,ST02;ST05,Q-код заимствован + экспликация «давление».,,,pending_validation
+A019,U009,ru,1,Набираю эшелон 180,1,en,D04;D05,ST08,Считывание: EN эллипсис (Climb…) → RU 1 л. наст. вр. — функция подтверждения сохранена.,,,pending_validation
+A020,U010,ru,1,повторите ваш позывной,1,en,D06,ST01,say again → «повторите»; ср. read back.,,,pending_validation
+A021,U011,ru,1,повторите (разрешение),1,en,D06;D05,ST05,Экспликация объекта для разграничения read back / say again.,,,pending_validation
+A022,U012,ru,1,MAYDAY MAYDAY MAYDAY,1,en,D02;D05,ST02,Сигнал бедствия не переводится.,,,pending_validation
+A023,U012,ru,1,Алматы-Подход,1,en,D01;D06,ST03,Позывной органа Approach калькируется («Подход»).,,,pending_validation
+A024,U012,kk,1,Алматы-Жақындау,1,en,D01;D06,ST03,Неустоявшаяся калька; в реальном радиообмене РК используется RU/EN. Pending validation.,,,pending_validation
+A025,U013,ru,1,прошу посадку вне очереди,1,en,D05,ST04,request priority landing → описательная прагматическая адаптация.,,,pending_validation
+A026,U014,ru,1,к взлёту готов,1,en,D05;D06,ST01,ICAO (после Тенерифе) запрещает take-off вне разрешения; RU «к взлёту готов» сохраняет «взлёт» — потенциальная неоднозначность.,,,pending_validation
+A027,U015,ru,1,Взлётно-посадочная полоса (ВПП),1,en,D01;D02,ST04;ST01,Однословный runway → трёхкомпонентный описательный термин + аббревиатура.,,,pending_validation
+A028,U015,kk,1,Ұшу-қону жолағы (ҰҚЖ),1,en,D01;D02,ST03,Поморфемная калька RU-термина.,,,pending_validation
+A029,U016,ru,1,Рулёжная дорожка (РД),1,en,D01,ST01,Установленный эквивалент.,,,pending_validation
+A030,U017,ru,1,посадки или высадки пассажиров,1,en,D06,ST01,RU «посадка» омонимична landing — терминологическая неоднозначность.,,,pending_validation
+A031,U018,ru,1,не являющееся авиационным происшествием,1,en,D01;D03,ST08;ST01,other than an accident → причастный оборот с отрицанием.,,,pending_validation
+A032,U018,kk,1,авиациялық оқиға болып табылмайтын,1,en,D01;D06,ST01,"KK «оқиға» = и occurrence, и accident → коллизия терминов.",,,pending_validation
+A033,U018,ru,1,влияет или могло бы повлиять,1,en,D04,ST01,could → сослагательное наклонение.,,,pending_validation
+A034,U019,kk,1,Авиациялық қауіпсіздік,1,ru,D01;D06,ST01,"security/safety различаются в EN лексически, в RU/KK — только атрибутом (авиационная / полётов).",,,pending_validation
+A035,U020,ru,1,закрыта в связи с проведением работ,1,en,D02,ST04;ST05,CLSD DUE WIP — расшифровка сокращений Doc 8400.,,,pending_validation
+A036,U021,ru,1,облачность значительная на 900 м (3000 футов),1,en,D02,ST04;ST05,BKN030 — код → описательный перевод с пересчётом единиц.,,,pending_validation
+A037,U022,ru,1,информация «Браво»,1,en,D02,ST02,Фонетический алфавит ICAO сохраняется.,,,pending_validation
+A038,U023,ru,1,командир воздушного судна,1,en,D01,ST06,captain → официальный термин (регистровая адаптация).,,,pending_validation
+A039,U023,kk,1,тағуларыңызды сұраймыз,1,en,D05,ST05,Вежливая форма просьбы — прагматическая адаптация.,,,pending_validation
+A040,U024,ru,1,"не должен начинать полёт, если он не убедился",1,en,D04,ST08,"shall not … unless — деонтическая модальность, двойное отрицание.",,,pending_validation
+A041,U024,kk,1,бастамауға тиіс,1,en,D04,ST01,shall → «тиіс».,,,pending_validation
+A042,U025,ru,1,должна использоваться,1,en,D04,ST01,shall → «должна» (SARPs: Standard).,,,pending_validation
+A043,U025,ru,1,открытый текст,1,en,D01;D06,ST01,plain language → «открытый текст» (не «простой язык»).,,,pending_validation
+A044,U026,kk,1,көрсетуге тиіс,1,en,D03;D04,ST08,Сказуемое перенесено в конец длинного предложения.,,,pending_validation

@@ -1,5 +1,22 @@
 id,label
-aerodrome,Aerodrome and runway operations
-atc,Air traffic services
-clearances,Clearances and instructions
-radiotelephony,Radiotelephony procedures
+aerodrome,aerodrome
+ats,ATS
+radiotelephony,radiotelephony
+flight_operations,flight operations
+emergency,emergency
+navigation,navigation
+ais_meteo,AIS/meteo
+aircraft_crew,aircraft/crew
+safety,safety
+cabin,cabin
+language_policy,language policy
+take_off,take-off
+conditional_clearance,conditional clearance
+taxi,taxi
+go_around,go-around
+transponder,transponder
+level_change,level change
+readback,readback
+departure,departure
+ais,AIS
+meteo,meteo

@@ -1,0 +1,7 @@
+unit_id,title,topic_id,term_ids,link_type,source_lang,direction_basis,alignment_status,training,status,note
+U-001,Landing clearance,clearances,T-RUNWAY;T-CLEARANCE,confirmed_translation,en,Demo: constructed English original with Russian and Kazakh renderings.,aligned,no,illustrative,
+U-002,Frequency change instruction,atc,T-ATC,parallel_unknown_direction,,,aligned,no,illustrative,Parallel versions; which text is the original is not documented.
+U-003,Holding short of the runway,clearances,T-HOLD-SHORT;T-RUNWAY,confirmed_translation,en,Demo: constructed English original with a Russian rendering.,aligned,no,illustrative,Kazakh version is not available.
+U-004,Go-around instruction,aerodrome,T-GO-AROUND,confirmed_translation,en,Demo: constructed English original.,in_review,no,illustrative,Russian splits one English sentence into two; alignment is under review.
+U-005,Read-back requirement,clearances,T-CLEARANCE,comparable,en,,aligned,yes,illustrative,Comparable rule texts; marked as a training example for scoring practice.
+U-006,Transponder code instruction,radiotelephony,T-SQUAWK,confirmed_translation,en,Demo: constructed English original.,aligned,no,illustrative,

@@ -1,0 +1,19 @@
+unit_id,lang,seq,text,source_id,locator
+U-001,en,1,"Runway 24, cleared to land.",DEMO-EN-PHR,ex. 1
+U-001,ru,1,Посадку на ВПП 24 разрешаю.,DEMO-RU-PHR,ex. 1
+U-001,kk,1,24 ұшу-қону жолағына қонуға рұқсат етемін.,DEMO-KK-PHR,ex. 1
+U-002,en,1,Contact Almaty Control on 125.1.,DEMO-EN-PHR,ex. 2
+U-002,ru,1,"Работайте с Алматы-Контроль на частоте 125,1.",DEMO-RU-PHR,ex. 2
+U-002,kk,1,"Алматы басқару орталығымен 125,1 жиілігінде байланысыңыз.",DEMO-KK-PHR,ex. 2
+U-003,en,1,Hold short of runway 06.,DEMO-EN-PHR,ex. 3
+U-003,ru,1,Ожидайте перед ВПП 06.,DEMO-RU-PHR,ex. 3
+U-004,en,1,"Go around, I say again, go around.",DEMO-EN-PHR,ex. 4
+U-004,ru,1,Уходите на второй круг.,DEMO-RU-PHR,ex. 4
+U-004,ru,2,Повторяю: уходите на второй круг.,DEMO-RU-PHR,ex. 4
+U-004,kk,1,"Екінші айналымға кетіңіз, қайталаймын, екінші айналымға кетіңіз.",DEMO-KK-PHR,ex. 4
+U-005,en,1,Pilots shall read back the ATC clearance.,DEMO-EN-REG,§ 2
+U-005,ru,1,Экипаж обязан повторить диспетчерское разрешение.,DEMO-RU-REG,§ 2
+U-005,kk,1,Экипаж диспетчерлік рұқсатты қайталауға міндетті.,DEMO-KK-REG,§ 2
+U-006,en,1,Squawk 4521.,DEMO-EN-PHR,ex. 5
+U-006,ru,1,Установите код ответчика 4521.,DEMO-RU-PHR,ex. 5
+U-006,kk,1,Ответчик кодын 4521 етіп орнатыңыз.,DEMO-KK-PHR,ex. 5

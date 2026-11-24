@@ -1,0 +1,17 @@
+term_id,lang,form,abbreviation,source_id,locator,check_status
+T-RUNWAY,en,runway,RWY,DEMO-EN-PHR,ex. 1,verified
+T-RUNWAY,ru,взлётно-посадочная полоса,ВПП,DEMO-RU-PHR,ex. 1,verified
+T-RUNWAY,kk,ұшу-қону жолағы,,DEMO-KK-PHR,ex. 1,pending
+T-ATC,en,air traffic control,ATC,DEMO-EN-PHR,ex. 2,verified
+T-ATC,ru,управление воздушным движением,УВД,DEMO-RU-PHR,ex. 2,verified
+T-ATC,kk,әуе қозғалысын басқару,,DEMO-KK-PHR,ex. 2,pending
+T-CLEARANCE,en,clearance,,DEMO-EN-REG,§ 1,verified
+T-CLEARANCE,ru,диспетчерское разрешение,,DEMO-RU-REG,§ 1,verified
+T-CLEARANCE,kk,диспетчерлік рұқсат,,DEMO-KK-REG,§ 1,pending
+T-HOLD-SHORT,en,hold short,,DEMO-EN-PHR,ex. 3,verified
+T-HOLD-SHORT,ru,ожидайте перед ВПП,,DEMO-RU-PHR,ex. 3,pending
+T-GO-AROUND,en,go around,,DEMO-EN-PHR,ex. 4,verified
+T-GO-AROUND,ru,уход на второй круг,,DEMO-RU-PHR,ex. 4,verified
+T-GO-AROUND,kk,екінші айналымға кету,,DEMO-KK-PHR,ex. 4,pending
+T-SQUAWK,en,squawk,,DEMO-EN-PHR,ex. 5,verified
+T-SQUAWK,ru,установите код ответчика,,DEMO-RU-PHR,ex. 5,pending

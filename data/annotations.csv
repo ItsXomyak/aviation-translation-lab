@@ -1,0 +1,15 @@
+annotation_id,unit_id,lang,seq,span_text,occurrence,compared_with,difficulty_ids,strategy_ids,explanation,evidence_source_id,evidence_locator,check_status
+AN-001,U-001,ru,1,разрешаю,1,en,pragmatic_function;syntax,syntactic_restructuring,"English 'cleared to land' (passive participle) becomes the first-person performative 'разрешаю', making the controller's authority explicit.",DEMO-RU-PHR,ex. 1,verified
+AN-002,U-001,ru,1,ВПП,1,en,abbreviation,established_equivalent,'Runway' is rendered by the established Russian abbreviation ВПП rather than by a borrowing.,DEMO-RU-PHR,ex. 1,verified
+AN-003,U-001,kk,1,ұшу-қону жолағына,1,en,term_equivalence,descriptive,Kazakh uses the descriptive compound 'ұшу-қону жолағы' (take-off and landing strip) with a case ending.,DEMO-KK-PHR,ex. 1,pending
+AN-004,U-002,ru,1,Работайте с,1,en,pragmatic_function,established_equivalent,"'Contact' is rendered by the conventional Russian radiotelephony formula 'работайте с', not by a literal 'свяжитесь'.",DEMO-RU-PHR,ex. 2,verified
+AN-005,U-002,kk,1,байланысыңыз,1,en,pragmatic_function,calque,Kazakh 'байланысыңыз' (contact) follows the English verb literally.,DEMO-KK-PHR,ex. 2,pending
+AN-006,U-003,ru,1,Ожидайте,1,en,modality,syntactic_restructuring,"The English imperative 'hold short' is rendered as 'ожидайте' (wait), shifting the focus from position to action.",DEMO-RU-PHR,ex. 3,verified
+AN-007,U-003,ru,1,ВПП,1,en,abbreviation,compression,'Runway' is compressed to the abbreviation ВПП.,DEMO-RU-PHR,ex. 3,verified
+AN-008,U-004,ru,2,Повторяю,1,en,syntax,syntactic_restructuring,The repeated English instruction is split into two Russian sentences.,DEMO-RU-PHR,ex. 4,verified
+AN-009,U-004,kk,1,екінші айналымға кетіңіз,1,en,term_consistency,established_equivalent,"The term is repeated in identical form, preserving terminological consistency.",DEMO-KK-PHR,ex. 4,pending
+AN-010,U-005,ru,1,обязан,1,en,modality,established_equivalent,"Deontic 'shall' is rendered by 'обязан', preserving the requirement.",DEMO-RU-REG,§ 2,verified
+AN-011,U-005,kk,1,міндетті,1,en,modality,established_equivalent,"Deontic 'shall' is rendered by 'міндетті', preserving the requirement.",DEMO-KK-REG,§ 2,pending
+AN-012,U-005,ru,1,диспетчерское разрешение,1,en,term_equivalence;abbreviation,explicitation,The abbreviation 'ATC' in 'ATC clearance' is not reproduced; its meaning is carried by the adjective 'диспетчерское'.,DEMO-RU-REG,§ 2,verified
+AN-013,U-006,ru,1,Установите код ответчика,1,en,term_equivalence,descriptive,The jargon verb 'squawk' has no one-word Russian equivalent and is rendered descriptively.,DEMO-RU-PHR,ex. 5,verified
+AN-014,U-006,kk,1,Ответчик,1,en,term_equivalence,borrowing,Kazakh borrows 'ответчик' (transponder) from Russian.,DEMO-KK-PHR,ex. 5,pending

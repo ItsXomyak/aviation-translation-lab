@@ -1,0 +1,8 @@
+source_id,title,organization,lang,genre_id,audience,url,accessed,published,edition,locator
+DEMO-EN-PHR,Demo source EN-1: radiotelephony exchanges (constructed),Aviation Translation Lab demo,en,phraseology,Pilots and air traffic controllers,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-RU-PHR,Demo source RU-1: radiotelephony exchanges (constructed),Aviation Translation Lab demo,ru,phraseology,Pilots and air traffic controllers,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-KK-PHR,Demo source KK-1: radiotelephony exchanges (constructed),Aviation Translation Lab demo,kk,phraseology,Pilots and air traffic controllers,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-EN-REG,Demo source EN-2: operating rules excerpt (constructed),Aviation Translation Lab demo,en,regulation,Flight crew,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-RU-REG,Demo source RU-2: operating rules excerpt (constructed),Aviation Translation Lab demo,ru,regulation,Flight crew,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-KK-REG,Demo source KK-2: operating rules excerpt (constructed),Aviation Translation Lab demo,kk,regulation,Flight crew,n/a - constructed for demonstration,2026-11-24,,,
+DEMO-GLOSS,Demo glossary of illustrative paraphrases (constructed),Aviation Translation Lab demo,en,training,Translators and trainees,n/a - constructed for demonstration,2026-11-24,,,
